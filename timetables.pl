@@ -1,9 +1,9 @@
 % FATOS DAS DATAS E HORARIOS 
-dia(seg).
-dia(ter).
-dia(qua).
-dia(qui).
-dia(sex).
+dia(seg, 1).
+dia(ter, 2).
+dia(qua, 3).
+dia(qui, 4).
+dia(sex, 5).
 
 horario(8).
 horario(10).
@@ -45,14 +45,14 @@ disponivel(Pessoa, Horario) :-
     horario(Horario),
     Horario >= HorarioInicio.
 
-% disponivel(Pessoa, Dia) :-
-% 	dia(Dia),
-% 	disponivel_a_partir(Pessoa, DiaInicio),
-% 	dia(DiaInicio),
-% 	disponivel_ate(Pessoa, DiaFim),
-% 	dia(DiaFim),
-%   findall(DiaSemana, dia(DiaSemana), Dias), 
-% Questão: como achar a posição do dia => achar dias intermediários
+disponivel(Pessoa, Dia) :-
+	dia(Dia, N),
+	disponivel_a_partir(Pessoa, DiaInicio),
+	dia(DiaInicio, NInicio),
+	disponivel_ate(Pessoa, DiaFim),
+	dia(DiaFim, NFim),
+	N >= NInicio,
+	N =< NFim.
 
 disponivel_a_partir(tinos, 10).
 disponivel_a_partir(joca, seg).
@@ -61,6 +61,35 @@ disponivel_a_partir(michele, 8).
 
 disponivel_ate(joca, qua).
 
-% Preferencia de horários e dias
+% Cria lista com os dias disponiveis de uma pessoa
+dias_disponiveis(Pessoa, DiasDisponiveis) :-
+	find_all(Dia, disponivel(Pessoa, Dia), DiasDisponiveis).
+
+% REGRAS DE PREFERENCIA
+prefere(Pessoa, Horario) :-
+	horario(Horario),
+	prefere_a_partir(Pessoa, HorarioInicio),
+	horario(HorarioInicio),
+	prefere_ate(Pessoa, HorarioFim),
+	horario(HorarioFim),
+	Horario >= HorarioInicio, 
+	Horario < HorarioFim.
+
+prefere(Pessoa, Horario) :-
+    horario(HorarioFim),
+    \+ prefere_ate(Pessoa, HorarioFim),
+    prefere_a_partir(Pessoa, HorarioInicio),
+    horario(HorarioInicio),
+    horario(Horario),
+    Horario >= HorarioInicio.
+
+prefere(Pessoa, Dia) :-
+	dia(Dia, N),
+	prefere_a_partir(Pessoa, DiaInicio),
+	dia(DiaInicio, NInicio),
+	prefere_ate(Pessoa, DiaFim),
+	dia(DiaFim, NFim),
+	N >= NInicio,
+	N =< NFim.
 
 % Relações de gostar
