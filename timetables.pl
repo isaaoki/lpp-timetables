@@ -1,9 +1,5 @@
 % FATOS DAS DATAS E HORARIOS 
-dia(seg, 1).
-dia(ter, 2).
-dia(qua, 3).
-dia(qui, 4).
-dia(sex, 5).
+dias_semana([seg, ter, qua, qui, sex]).
 
 horario(8).
 horario(10).
@@ -46,11 +42,12 @@ disponivel(Pessoa, Horario) :-
     Horario >= HorarioInicio.
 
 disponivel(Pessoa, Dia) :-
-	dia(Dia, N),
+	dias_semana(Dias), 
+	nth1(N, Dias, Dia),
 	disponivel_a_partir(Pessoa, DiaInicio),
-	dia(DiaInicio, NInicio),
+	nth1(NInicio, Dias, DiaInicio),
 	disponivel_ate(Pessoa, DiaFim),
-	dia(DiaFim, NFim),
+	nth1(NFim, Dias, DiaFim),
 	N >= NInicio,
 	N =< NFim.
 
@@ -63,7 +60,11 @@ disponivel_ate(joca, qua).
 
 % Cria lista com os dias disponiveis de uma pessoa
 dias_disponiveis(Pessoa, DiasDisponiveis) :-
-	find_all(Dia, disponivel(Pessoa, Dia), DiasDisponiveis).
+	dias_semana(Dias),
+	findall(Dia, (
+		member(Dia, Dias),
+		disponivel(Pessoa, Dia)
+	), DiasDisponiveis).
 
 % REGRAS DE PREFERENCIA
 prefere(Pessoa, Horario) :-
@@ -84,12 +85,21 @@ prefere(Pessoa, Horario) :-
     Horario >= HorarioInicio.
 
 prefere(Pessoa, Dia) :-
-	dia(Dia, N),
+	dias_semana(Dias), 
+	nth1(N, Dias, Dia),
 	prefere_a_partir(Pessoa, DiaInicio),
-	dia(DiaInicio, NInicio),
+	nth1(NInicio, Dias, DiaInicio),
 	prefere_ate(Pessoa, DiaFim),
-	dia(DiaFim, NFim),
+	nth1(NFim, Dias, DiaFim),
 	N >= NInicio,
 	N =< NFim.
+
+% Cria lista com os dias disponiveis de uma pessoa
+dias_preferencia(Pessoa, DiasPreferencia) :-
+	dias_semana(Dias),
+	findall(Dia, (
+		member(Dia, Dias),
+		prefere(Pessoa, Dia)
+	), DiasPreferencia).
 
 % Relações de gostar
