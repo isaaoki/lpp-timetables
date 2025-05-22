@@ -5,6 +5,7 @@ horario(8).
 horario(10).
 horario(14).
 
+% turno(Quantidade, Horario, Funcao)
 turno(1, 8, professor).
 turno(1, 10, professor).
 turno(1, 14, professor).
@@ -34,8 +35,7 @@ disponivel(Pessoa, Horario) :-
 	Horario < HorarioFim.
 
 disponivel(Pessoa, Horario) :-
-    horario(HorarioFim),
-    \+ disponivel_ate(Pessoa, HorarioFim),
+    \+ disponivel_ate(Pessoa, horario(_)),
     disponivel_a_partir(Pessoa, HorarioInicio),
     horario(HorarioInicio),
     horario(Horario),
@@ -57,6 +57,7 @@ disponivel_a_partir(michele, seg).
 disponivel_a_partir(michele, 8).
 
 disponivel_ate(joca, qua).
+disponivel_ate(michele, sex).
 
 % Cria lista com os dias disponiveis de uma pessoa
 dias_disponiveis(Pessoa, DiasDisponiveis) :-
@@ -65,6 +66,12 @@ dias_disponiveis(Pessoa, DiasDisponiveis) :-
 		member(Dia, Dias),
 		disponivel(Pessoa, Dia)
 	), DiasDisponiveis).
+
+horarios_disponiveis(Pessoa, HorariosDisponiveis) :-	
+	findall(Horario, (
+		horario(Horario),
+		disponivel(Pessoa, Horario)
+	), HorariosDisponiveis).
 
 % REGRAS DE PREFERENCIA
 prefere(Pessoa, Horario) :-
@@ -102,4 +109,43 @@ dias_preferencia(Pessoa, DiasPreferencia) :-
 		prefere(Pessoa, Dia)
 	), DiasPreferencia).
 
-% Relações de gostar
+% Relações de gostar e não gostar que limitam
+
+% MONTAR CRONOGRAMA
+
+% montar_tuplas_dia(Dia, TuplasDia) :-
+% 	findall((Horario, Pessoa, Funcao), (
+% 		turno(_, Horario, Funcao),
+% 		disponivel(Pessoa, Horario),
+% 		disponivel(Pessoa, Dia)
+% 	), TuplasDia).
+
+montar_tuplas_dia(Dia, TuplasDia) :-
+	findall(TuplasHorario, (
+		horario(Horario),
+		montar_tuplas_horario(TuplasHorario, Dia, Horario)
+		), TuplasDia).
+
+montar_tuplas_horario(TuplasHorario, Dia, Horario) :-
+	findall((Horario, Pessoa, Funcao), (
+			turno(N, Horario, Funcao),
+			disponivel(Pessoa, Horario),
+			disponivel(Pessoa, Dia)
+		), TuplasHorario).
+
+% filtrar_horario(TuplasHorario) :-
+% 	turno(N, Horario,)
+
+% filtrar_dia(TuplasDia, TuplasFiltradas) :-
+% 	filtrar_dia(TuplasDia, TuplasFiltradas, 0).
+
+% filtrar_dia(TuplasDia, TuplasFiltradas, It) :-
+% 	turno(N, Horario, _),
+% 	ItNova is It + 1,
+% 	N >= ItNova,
+
+montar_cronograma(TuplasSegunda, TuplasTerca) :-
+	montar_tuplas_dia(seg, TuplasSegunda),
+	montar_tuplas_dia(ter, TuplasTerca).
+
+
