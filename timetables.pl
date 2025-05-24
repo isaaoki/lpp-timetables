@@ -59,6 +59,13 @@ disponivel_a_partir(michele, 8).
 disponivel_ate(joca, qua).
 disponivel_ate(michele, sex).
 
+disponivel_dia_horario(Pessoa, Dia, Horario) :-
+	dias_semana(Dias),
+	member(Dia, Dias),
+	horario(Horario),
+	disponivel(Pessoa, Dia),
+	disponivel(Pessoa, Horario).
+
 % Cria lista com os dias disponiveis de uma pessoa
 dias_disponiveis(Pessoa, DiasDisponiveis) :-
 	dias_semana(Dias),
@@ -72,6 +79,11 @@ horarios_disponiveis(Pessoa, HorariosDisponiveis) :-
 		horario(Horario),
 		disponivel(Pessoa, Horario)
 	), HorariosDisponiveis).
+
+dias_horarios_disponiveis(Pessoa, Disponibilidade) :-
+	findall((Dia, Horario), (
+		disponivel_dia_horario(Pessoa, Dia, Horario)
+	), Disponibilidade).
 
 % REGRAS DE PREFERENCIA
 prefere(Pessoa, Horario) :-
@@ -112,40 +124,3 @@ dias_preferencia(Pessoa, DiasPreferencia) :-
 % Relações de gostar e não gostar que limitam
 
 % MONTAR CRONOGRAMA
-
-% montar_tuplas_dia(Dia, TuplasDia) :-
-% 	findall((Horario, Pessoa, Funcao), (
-% 		turno(_, Horario, Funcao),
-% 		disponivel(Pessoa, Horario),
-% 		disponivel(Pessoa, Dia)
-% 	), TuplasDia).
-
-montar_tuplas_dia(Dia, TuplasDia) :-
-	findall(TuplasHorario, (
-		horario(Horario),
-		montar_tuplas_horario(TuplasHorario, Dia, Horario)
-		), TuplasDia).
-
-montar_tuplas_horario(TuplasHorario, Dia, Horario) :-
-	findall((Horario, Pessoa, Funcao), (
-			turno(N, Horario, Funcao),
-			disponivel(Pessoa, Horario),
-			disponivel(Pessoa, Dia)
-		), TuplasHorario).
-
-% filtrar_horario(TuplasHorario) :-
-% 	turno(N, Horario,)
-
-% filtrar_dia(TuplasDia, TuplasFiltradas) :-
-% 	filtrar_dia(TuplasDia, TuplasFiltradas, 0).
-
-% filtrar_dia(TuplasDia, TuplasFiltradas, It) :-
-% 	turno(N, Horario, _),
-% 	ItNova is It + 1,
-% 	N >= ItNova,
-
-montar_cronograma(TuplasSegunda, TuplasTerca) :-
-	montar_tuplas_dia(seg, TuplasSegunda),
-	montar_tuplas_dia(ter, TuplasTerca).
-
-
