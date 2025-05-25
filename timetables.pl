@@ -134,13 +134,18 @@ cronograma_dia(Dia, Cronograma) :-
 % Caso base: não há mais horários, o cronograma é vazio
 cronograma_horarios(_, [], []).
 
-% Para cada horário da lista, gera os grupos possiveis do horario e escolhe um grupo possível
+% Caso 1: Grupos é uma lista vazia [] (nao ha pessoas disponiveis nesse horario)
+cronograma_horarios(Dia, [Horario | Resto], [[] | RestoGrupos]) :-
+	grupos_possiveis(Dia, Horario, Grupos),
+	Grupos == [], !,
+	cronograma_horarios(Dia, Resto, RestoGrupos).
+
+% Caso 2: Gera os grupos possiveis do horario e escolhe um grupo possível
 % Continua até acabar horários
 cronograma_horarios(Dia, [Horario | Resto], [Grupo | RestoGrupos]) :-
 	grupos_possiveis(Dia, Horario, Grupos),
 	member(Grupo, Grupos),
 	cronograma_horarios(Dia, Resto, RestoGrupos).
-
 
 % Retorna os grupos possiveis de um determinado turno
 grupos_possiveis(Dia, Horario, Grupos) :-
