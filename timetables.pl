@@ -5,7 +5,6 @@ horario(8).
 horario(10).
 horario(14).
 
-% turno(Quantidade, Horario, Funcao)
 turno(1, 8, professor).
 turno(1, 10, professor).
 turno(1, 14, professor).
@@ -66,7 +65,7 @@ disponivel_dia_horario(Pessoa, Dia, Horario) :-
 	disponivel(Pessoa, Dia),
 	disponivel(Pessoa, Horario).
 
-% Cria lista com os dias disponiveis de uma pessoa
+% Para testar: cria lista com os dias/horarios disponiveis de uma pessoa
 dias_disponiveis(Pessoa, DiasDisponiveis) :-
 	dias_semana(Dias),
 	findall(Dia, (
@@ -113,7 +112,7 @@ prefere(Pessoa, Dia) :-
 	N >= NInicio,
 	N =< NFim.
 
-% Cria lista com os dias disponiveis de uma pessoa
+% Para testar: cria lista com os dias disponiveis de uma pessoa
 dias_preferencia(Pessoa, DiasPreferencia) :-
 	dias_semana(Dias),
 	findall(Dia, (
@@ -124,35 +123,43 @@ dias_preferencia(Pessoa, DiasPreferencia) :-
 % Relações de gostar e não gostar que limitam
 
 % MONTAR CRONOGRAMA
-montar_cronograma_dia(Dia, Cronograma) :-
-	findall(GruposHorario, (
-		horario(Horario),
-		montar_cronograma_horario(Dia, Horario, GruposHorario)
-	), ListaGruposPorHorario),
-	produto_cartesiano(ListaGruposPorHorario, Cronograma).
 
-montar_cronograma_horario(Dia, Horario, GrupoPessoas) :-
+% Gera o cronograma de um dia
+cronograma_dia(Dia, Cronograma) :-
+	% Obtem lista dos horarios
+	findall(Horario, horario(Horario), Horarios),
+	% Retorna cronograma passando por cada horario
+	cronograma_horarios(Dia, Horarios, Cronograma).
+
+% Caso base: não há mais horários, o cronograma é vazio
+cronograma_horarios(_, [], []).
+
+% Para cada horário da lista, gera os grupos possiveis do horario e escolhe um grupo possível
+% Continua até acabar horários
+cronograma_horarios(Dia, [Horario | Resto], [Grupo | RestoGrupos]) :-
+	grupos_possiveis(Dia, Horario, Grupos),
+	member(Grupo, Grupos),
+	cronograma_horarios(Dia, Resto, RestoGrupos).
+
+
+% Retorna os grupos possiveis de um determinado turno
+grupos_possiveis(Dia, Horario, Grupos) :-
 	turno(Quantidade, Horario, Funcao),
-	% Acha todas as pessoas disponiveis naquele horario
-	findall((Horario, Pessoa, Funcao), (
-		disponivel_dia_horario(Pessoa, Dia, Horario)
-	), PessoasDisponiveis),
-	findall(Grupo, combinar(Quantidade, PessoasDisponiveis, Grupo), GrupoPessoas).
+	% Acha todas as pessoas disponiveis naquele dia e horario
+	findall((Horario, Pessoa, Funcao), disponivel_dia_horario(Pessoa, Dia, Horario), Disponiveis),
+	% Acha toda as combinacoes possiveis da lista disponiveis com a quantidade do turno
+	findall(Grupo, combinar(Quantidade, Disponiveis, Grupo), Grupos).
 
-% combinar(Quantidade, Lista, Combinacoes)
+% PREDICADOS ADICIONAIS
+% combinar(+Quantidade, +Lista, -Combinacoes)
 % Caso base: lista vazia tem combinações com uma lista vazia
 combinar(0, _, []).
-% Caso 1: inclui o primeiro elemento na lista de combinações
+% Caso 1: inclui o primeiro elemento nas combinacoes, encontra K-1 elementos entre os restantes
 combinar(K, [X | T1], [X | T2]) :-
 	K > 0, 
 	K1 is K -1,
 	combinar(K1, T1, T2).
-% Caso 2: ignora o primeiro elemento na lista de combinações
+% Caso 2: ignora o primeiro elemento na lista de combinações, encontra K elementos entre os restantes
 combinar(K, [_ | T1], T2) :-
 	K > 0,
 	combinar(K, T1, T2).
-
-produto_cartesiano([], [[]]).
-produto_cartesiano([Lista | Resto], Resultado) :-
-    produto_cartesiano(Resto, Parcial),
-    findall([X | Ys], (member(X, Lista), member(Ys, Parcial)), Resultado).
