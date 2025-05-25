@@ -22,7 +22,7 @@ disponivel(vanessa, 10).
 disponivel(vanessa, ter).
 disponivel(vanessa, qui).
 disponivel(mirela, qui).
-disponivel(milela, 8).
+disponivel(mirela, 8).
 
 % REGRAS DE DISPONIBILIDADE
 disponivel(Pessoa, Horario) :-
@@ -53,11 +53,11 @@ disponivel(Pessoa, Dia) :-
 
 disponivel_a_partir(tinos, 10).
 disponivel_a_partir(joca, seg).
-disponivel_a_partir(michele, seg).
+disponivel_a_partir(michele, ter).
 disponivel_a_partir(michele, 8).
 
 disponivel_ate(joca, qua).
-disponivel_ate(michele, sex).
+disponivel_ate(michele, qua).
 
 disponivel_dia_horario(Pessoa, Dia, Horario) :-
 	dias_semana(Dias),
@@ -80,8 +80,8 @@ horarios_disponiveis(Pessoa, HorariosDisponiveis) :-
 		disponivel(Pessoa, Horario)
 	), HorariosDisponiveis).
 
-dias_horarios_disponiveis(Pessoa, Disponibilidade) :-
-	findall((Dia, Horario), (
+dias_horarios_disponiveis(Dia, Horario, Disponibilidade) :-
+	findall(Pessoa, (
 		disponivel_dia_horario(Pessoa, Dia, Horario)
 	), Disponibilidade).
 
@@ -124,3 +124,35 @@ dias_preferencia(Pessoa, DiasPreferencia) :-
 % Relações de gostar e não gostar que limitam
 
 % MONTAR CRONOGRAMA
+montar_cronograma_dia(Dia, Cronograma) :-
+	findall(GruposHorario, (
+		horario(Horario),
+		montar_cronograma_horario(Dia, Horario, GruposHorario)
+	), ListaGruposPorHorario),
+	produto_cartesiano(ListaGruposPorHorario, Cronograma).
+
+montar_cronograma_horario(Dia, Horario, GrupoPessoas) :-
+	turno(Quantidade, Horario, Funcao),
+	% Acha todas as pessoas disponiveis naquele horario
+	findall((Horario, Pessoa, Funcao), (
+		disponivel_dia_horario(Pessoa, Dia, Horario)
+	), PessoasDisponiveis),
+	findall(Grupo, combinar(Quantidade, PessoasDisponiveis, Grupo), GrupoPessoas).
+
+% combinar(Quantidade, Lista, Combinacoes)
+% Caso base: lista vazia tem combinações com uma lista vazia
+combinar(0, _, []).
+% Caso 1: inclui o primeiro elemento na lista de combinações
+combinar(K, [X | T1], [X | T2]) :-
+	K > 0, 
+	K1 is K -1,
+	combinar(K1, T1, T2).
+% Caso 2: ignora o primeiro elemento na lista de combinações
+combinar(K, [_ | T1], T2) :-
+	K > 0,
+	combinar(K, T1, T2).
+
+produto_cartesiano([], [[]]).
+produto_cartesiano([Lista | Resto], Resultado) :-
+    produto_cartesiano(Resto, Parcial),
+    findall([X | Ys], (member(X, Lista), member(Ys, Parcial)), Resultado).
