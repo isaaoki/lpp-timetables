@@ -160,14 +160,23 @@ cronograma_horarios(Dia, [Horario | Resto], [Grupo | RestoGrupos]) :-
 	member(Grupo, Grupos),
 	cronograma_horarios(Dia, Resto, RestoGrupos).
 
-% Retorna os grupos possiveis de um determinado turno
 grupos_possiveis(Dia, Horario, Grupos) :-
 	turno(Quantidade, Horario, Funcao),
 	% Acha todas as pessoas disponiveis naquele dia e horario
-	findall((Horario, Pessoa, Funcao), disponivel_dia_horario(Pessoa, Dia, Horario), Disponiveis),
+	findall((Horario, Pessoa, Funcao), (
+		disponivel_dia_horario(Pessoa, Dia, Horario),
+		prefere_dia_horario(Pessoa, Dia, Horario)),
+	Disponiveis_prefere),
+
+	findall((Horario, Pessoa, Funcao), (
+		disponivel_dia_horario(Pessoa, Dia, Horario),
+		\+ prefere_dia_horario(Pessoa, Dia, Horario)),
+	Disponiveis_nao_prefere),
+
+	append(Disponiveis_prefere, Disponiveis_nao_prefere, Disponiveis),
 	% Acha toda as combinacoes possiveis da lista disponiveis com a quantidade do turno
 	findall(Grupo, combinar(Quantidade, Disponiveis, Grupo), Grupos).
-	
+
 % PREDICADOS ADICIONAIS
 % combinar(+Quantidade, +Lista, -Combinacoes)
 % Caso base: lista vazia tem combinações com uma lista vazia
