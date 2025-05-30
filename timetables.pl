@@ -85,8 +85,9 @@ dias_horarios_disponiveis(Dia, Horario, Disponibilidade) :-
 	), Disponibilidade).
 
 % REGRAS DE PREFERENCIA
-prefere(michele, terca).
+prefere(michele, ter).
 prefere(michele, 10).
+prefere(tinos, seg).
 
 prefere(Pessoa, Horario) :-
 	horario(Horario),
@@ -114,6 +115,8 @@ prefere(Pessoa, Dia) :-
 	N >= NInicio,
 	N =< NFim.
 
+prefere_a_partir(tinos, 10).
+prefere_ate(tinos, 14).
 
 prefere_dia_horario(Pessoa, Dia, Horario) :-
 	dias_semana(Dias),
