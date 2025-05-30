@@ -85,6 +85,9 @@ dias_horarios_disponiveis(Dia, Horario, Disponibilidade) :-
 	), Disponibilidade).
 
 % REGRAS DE PREFERENCIA
+prefere(michele, terca).
+prefere(michele, 10).
+
 prefere(Pessoa, Horario) :-
 	horario(Horario),
 	prefere_a_partir(Pessoa, HorarioInicio),
@@ -95,8 +98,7 @@ prefere(Pessoa, Horario) :-
 	Horario < HorarioFim.
 
 prefere(Pessoa, Horario) :-
-    horario(HorarioFim),
-    \+ prefere_ate(Pessoa, HorarioFim),
+    \+ prefere_ate(Pessoa, horario(_)),
     prefere_a_partir(Pessoa, HorarioInicio),
     horario(HorarioInicio),
     horario(Horario),
@@ -111,6 +113,14 @@ prefere(Pessoa, Dia) :-
 	nth1(NFim, Dias, DiaFim),
 	N >= NInicio,
 	N =< NFim.
+
+
+prefere_dia_horario(Pessoa, Dia, Horario) :-
+	dias_semana(Dias),
+	member(Dia, Dias),
+	horario(Horario),
+	prefere(Pessoa, Dia),
+	prefere(Pessoa, Horario).
 
 % Para testar: cria lista com os dias disponiveis de uma pessoa
 dias_preferencia(Pessoa, DiasPreferencia) :-
@@ -154,7 +164,7 @@ grupos_possiveis(Dia, Horario, Grupos) :-
 	findall((Horario, Pessoa, Funcao), disponivel_dia_horario(Pessoa, Dia, Horario), Disponiveis),
 	% Acha toda as combinacoes possiveis da lista disponiveis com a quantidade do turno
 	findall(Grupo, combinar(Quantidade, Disponiveis, Grupo), Grupos).
-
+	
 % PREDICADOS ADICIONAIS
 % combinar(+Quantidade, +Lista, -Combinacoes)
 % Caso base: lista vazia tem combinações com uma lista vazia
