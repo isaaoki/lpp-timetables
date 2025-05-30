@@ -6,7 +6,7 @@ horario(10).
 horario(14).
 
 turno(1, 8, professor).
-turno(1, 10, professor).
+turno(2, 10, professor).
 turno(1, 14, professor).
 
 % FATOS E REGRAS DAS DISPONIBILIDADES DAS PESSOAS
@@ -55,6 +55,7 @@ disponivel_a_partir(joca, seg).
 disponivel_a_partir(michele, ter).
 disponivel_a_partir(michele, 8).
 
+disponivel_ate(tinos, 14).
 disponivel_ate(joca, qua).
 disponivel_ate(michele, qua).
 
@@ -95,7 +96,7 @@ prefere(Pessoa, Horario) :-
 	horario(HorarioInicio),
 	prefere_ate(Pessoa, HorarioFim),
 	horario(HorarioFim),
-	Horario >= HorarioInicio, 
+	Horario > HorarioInicio, 
 	Horario < HorarioFim.
 
 prefere(Pessoa, Horario) :-
@@ -134,9 +135,9 @@ dias_preferencia(Pessoa, DiasPreferencia) :-
 	), DiasPreferencia).
 
 % Relações de gostar e não gostar que limitam
+detesta(michele, joca).
 
 % MONTAR CRONOGRAMA
-
 % Gera o cronograma de um dia
 cronograma_dia(Dia, Cronograma) :-
 	% Obtem lista dos horarios
@@ -166,16 +167,22 @@ grupos_possiveis(Dia, Horario, Grupos) :-
 	findall((Horario, Pessoa, Funcao), (
 		disponivel_dia_horario(Pessoa, Dia, Horario),
 		prefere_dia_horario(Pessoa, Dia, Horario)),
-	Disponiveis_prefere),
+	DisponiveisPrefere),
 
 	findall((Horario, Pessoa, Funcao), (
 		disponivel_dia_horario(Pessoa, Dia, Horario),
 		\+ prefere_dia_horario(Pessoa, Dia, Horario)),
-	Disponiveis_nao_prefere),
+	DisponiveisNaoPrefere),
 
-	append(Disponiveis_prefere, Disponiveis_nao_prefere, Disponiveis),
+	append(DisponiveisPrefere, DisponiveisNaoPrefere, Disponiveis),
 	% Acha toda as combinacoes possiveis da lista disponiveis com a quantidade do turno
-	findall(Grupo, combinar(Quantidade, Disponiveis, Grupo), Grupos).
+	findall(Grupo, (combinar(Quantidade, Disponiveis, Grupo), checagem_brigas(Grupo)), Grupos).
+
+checagem_brigas([]).
+
+checagem_brigas([(_, Pessoa1, _) | Tail]) :-
+	\+ (member((_, Pessoa2, _), Tail), detesta(Pessoa1, Pessoa2)),
+	checagem_brigas(Tail).
 
 % PREDICADOS ADICIONAIS
 % combinar(+Quantidade, +Lista, -Combinacoes)
