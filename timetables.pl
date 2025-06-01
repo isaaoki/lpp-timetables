@@ -30,7 +30,7 @@ disponivel(Pessoa, Horario) :-
 	horario(HorarioInicio),
 	disponivel_ate(Pessoa, HorarioFim),
 	horario(HorarioFim),
-	Horario >= HorarioInicio, 
+	Horario > HorarioInicio, 
 	Horario < HorarioFim.
 
 disponivel(Pessoa, Horario) :-
@@ -133,6 +133,17 @@ dias_preferencia(Pessoa, DiasPreferencia) :-
 		member(Dia, Dias),
 		prefere(Pessoa, Dia)
 	), DiasPreferencia).
+
+horarios_preferencia(Pessoa, HorariosPreferencia) :-	
+	findall(Horario, (
+		horario(Horario),
+		prefere(Pessoa, Horario)
+	), HorariosPreferencia).
+
+dias_horarios_preferencia(Dia, Horario, Preferencia) :-
+	findall(Pessoa, (
+		prefere_dia_horario(Pessoa, Dia, Horario)
+	), Preferencia).
 
 % Relações de gostar e não gostar que limitam
 detesta(michele, joca).
