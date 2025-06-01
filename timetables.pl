@@ -1,4 +1,4 @@
-/** <module> Sistema de Organizacao de Turnos com Restricoes
+/** <module> Sistema de Organizacao de Escalas com Restricoes
 
 Este projeto organiza turnos em um cronograma, considerando diferentes tipos de restricao 
 como a disponibilidade, a preferencia e as compatibilidades entre as pessoas envolvidas. 
@@ -178,16 +178,16 @@ cronograma_dia(Dia, Cronograma) :-
 cronograma_horarios(_, [], []).
 
 % Caso 1: Nao existe grupo possivel ([]) para o horario, adiciona lista vazia
-cronograma_horarios(Dia, [Horario | Resto], [[] | RestoGrupos]) :-
+cronograma_horarios(Dia, [Horario | T1], [[] | T2]) :-
 	grupos_possiveis(Dia, Horario, Grupos),
 	Grupos == [], !,
-	cronograma_horarios(Dia, Resto, RestoGrupos).
+	cronograma_horarios(Dia, T1, T2).
 
 % Caso 2: Gera os grupos possiveis do horario, escolhe um grupo e continua
-cronograma_horarios(Dia, [Horario | Resto], [Grupo | RestoGrupos]) :-
+cronograma_horarios(Dia, [Horario | T1], [Grupo | T2]) :-
 	grupos_possiveis(Dia, Horario, Grupos),
 	member(Grupo, Grupos),
-	cronograma_horarios(Dia, Resto, RestoGrupos).
+	cronograma_horarios(Dia, T1, T2).
 
 %% grupos_possiveis(+Dia:atom, +Horario:int, -Grupos:list) is det
 % Retorna uma lista com os grupos possiveis de pessoas disponiveis em um turno
@@ -208,9 +208,14 @@ grupos_possiveis(Dia, Horario, Grupos) :-
 	DisponiveisNaoPrefere),
 	% Junta todos os disponiveis
 	append(DisponiveisPrefere, DisponiveisNaoPrefere, Disponiveis),
-
-	% Gera toda as combinacoes possiveis da lista Disponiveis com a quantidade do turno, conferindo a compatibilidade
-	findall(Grupo, (combinar(Quantidade, Disponiveis, Grupo), checa_compatibilidade(Grupo)), Grupos).
+	length(Disponiveis, QuantidadeDisponiveis),
+	
+	(	QuantidadeDisponiveis >= Quantidade -> 
+		% Gera toda as combinacoes possiveis da lista Disponiveis com a Quantidade do turno, conferindo a compatibilidade
+		findall(Grupo, (combinar(Quantidade, Disponiveis, Grupo), checa_compatibilidade(Grupo)), Grupos) ;
+		% Se tem menos pessoas disponiveis, usa todas as pessoas, conferindo a compatibilidade
+		(checa_compatibilidade(Disponiveis) -> Grupos = [Disponiveis], Grupos = [])
+	).
 
 %% checa_compatibilidade(+Grupo:list) is semidet
 % Verdadeiro se nao existe pessoas que detestam outras no grupo
@@ -235,42 +240,49 @@ combinar(K, [_ | T1], T2) :-
 	K > 0,
 	combinar(K, T1, T2).
 
-% % TESTE
-% % Para testar: cria lista com os dias/horarios disponiveis de uma pessoa
-% dias_disponiveis(Pessoa, DiasDisponiveis) :-
+% ----------------------
+% MAIN E FUNCIONALIDADES
+% ----------------------
+% cronograma_semana(Dias, Cronogramas) :-
+% 	findall(Cronograma, (member(Dia, Dias), cronograma_dia(Dia, Cronograma)), Cronogramas).
+
+% imprimir_cronogramas([], []).
+% imprimir_cronogramas([Dia | T1], [Cronograma | T2]) :-
+% 	format('~nDia: ~w', [Dia]),
+% 	format('~nCronograma: ~w', [Cronograma]),
+% 	imprimir_cronogramas(T1, T2).
+
+main :-
+	repeat,
+	nl,
+	write('---- Sistema de Organizacao de Escalas com Restricoes ----'), nl, 
+	write('Opcoes:'), nl, 
+	write('1. Montar cronograma da semana'), nl,
+	write('2. Montar cronograma por dia'), nl,
+	write('3. Sair'), nl,
+	write('opcao> '),
+	read(Opcao),
+	opcao_menu(Opcao),
+	Opcao == 3, !. 
+
+% opcao_menu(1) :-
+% 	!,
 % 	dias_semana(Dias),
-% 	findall(Dia, (
-% 		member(Dia, Dias),
-% 		disponivel(Pessoa, Dia)
-% 	), DiasDisponiveis).
+% 	cronograma_semana(Dias, Cronogramas),
+%     imprimir_cronogramas(Dias, Cronogramas), nl.
 
-% horarios_disponiveis(Pessoa, HorariosDisponiveis) :-	
-% 	findall(Horario, (
-% 		horario(Horario),
-% 		disponivel(Pessoa, Horario)
-% 	), HorariosDisponiveis).
+opcao_menu(2) :-
+	!, 
+	dias_semana(Dias),
+	format('Digite o dia ~w: ', [Dias]),
+	read(Dia),
+	cronograma_dia(Dia, Cronograma),
+	format('~nDia: ~w', [Dia]),
+	format('~nCronograma: ~w', [Cronograma]), nl.
 
-% dias_horarios_disponiveis(Dia, Horario, Disponibilidade) :-
-% 	findall(Pessoa, (
-% 		disponivel_dia_horario(Pessoa, Dia, Horario)
-% 	), Disponibilidade).
+opcao_menu(3) :-
+	!,
+	write('Saindo...'), nl.
 
-
-% % Para testar: cria lista com os dias disponiveis de uma pessoa
-% dias_preferencia(Pessoa, DiasPreferencia) :-
-% 	dias_semana(Dias),
-% 	findall(Dia, (
-% 		member(Dia, Dias),
-% 		prefere(Pessoa, Dia)
-% 	), DiasPreferencia).
-
-% horarios_preferencia(Pessoa, HorariosPreferencia) :-	
-% 	findall(Horario, (
-% 		horario(Horario),
-% 		prefere(Pessoa, Horario)
-% 	), HorariosPreferencia).
-
-% dias_horarios_preferencia(Dia, Horario, Preferencia) :-
-% 	findall(Pessoa, (
-% 		prefere_dia_horario(Pessoa, Dia, Horario)
-% 	), Preferencia).
+opcao_menu(_) :-
+	write('Opcao invalida! Tente novamente...'), nl.
