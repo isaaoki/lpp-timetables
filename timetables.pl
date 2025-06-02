@@ -166,6 +166,16 @@ detesta(michele, joca).
 % MONTAR CRONOGRAMA
 % -----------------
 
+%% cronograma_semana(+Dias:list, -CronogramaSemana:list) is nondet
+% Gera as diferentes possibilidades do cronograma da semana
+% Caso base: não há mais dias, o cronograma é vazio
+cronograma_semana([], []).
+
+% Caso 1: gera o cronograma do dia e adiciona a lista de cronogramas
+cronograma_semana([Dia | T1], [CronogramaDia | T2]) :-
+	cronograma_dia(Dia, CronogramaDia),
+	cronograma_semana(T1, T2).
+
 %% cronograma_dia(+Dia:atom, -Cronograma:list) is nondet
 % Gera o cronograma de um dia, passando por cada horario
 cronograma_dia(Dia, Cronograma) :-
@@ -214,7 +224,7 @@ grupos_possiveis(Dia, Horario, Grupos) :-
 		% Gera toda as combinacoes possiveis da lista Disponiveis com a Quantidade do turno, conferindo a compatibilidade
 		findall(Grupo, (combinar(Quantidade, Disponiveis, Grupo), checa_compatibilidade(Grupo)), Grupos) ;
 		% Se tem menos pessoas disponiveis, usa todas as pessoas, conferindo a compatibilidade
-		(checa_compatibilidade(Disponiveis) -> Grupos = [Disponiveis], Grupos = [])
+		(checa_compatibilidade(Disponiveis) -> Grupos = [Disponiveis] ; Grupos = [])
 	).
 
 %% checa_compatibilidade(+Grupo:list) is semidet
@@ -243,14 +253,6 @@ combinar(K, [_ | T1], T2) :-
 % ----------------------
 % MAIN E FUNCIONALIDADES
 % ----------------------
-% cronograma_semana(Dias, Cronogramas) :-
-% 	findall(Cronograma, (member(Dia, Dias), cronograma_dia(Dia, Cronograma)), Cronogramas).
-
-% imprimir_cronogramas([], []).
-% imprimir_cronogramas([Dia | T1], [Cronograma | T2]) :-
-% 	format('~nDia: ~w', [Dia]),
-% 	format('~nCronograma: ~w', [Cronograma]),
-% 	imprimir_cronogramas(T1, T2).
 
 main :-
 	repeat,
@@ -263,22 +265,42 @@ main :-
 	write('opcao> '),
 	read(Opcao),
 	opcao_menu(Opcao),
-	Opcao == 3, !. 
+	(Opcao == 3 -> ! ; fail). 
 
-% opcao_menu(1) :-
-% 	!,
-% 	dias_semana(Dias),
-% 	cronograma_semana(Dias, Cronogramas),
-%     imprimir_cronogramas(Dias, Cronogramas), nl.
+imprimir_todos_cronogramas([], _).
+imprimir_todos_cronogramas([Cronograma | T], N) :-
+	format('~n~nCronograma ~w:', [N]),
+	dias_semana(Dias),
+	imprimir_cronograma(Dias, Cronograma),
+	N1 is N + 1,
+	imprimir_todos_cronogramas(T, N1).
+
+imprimir_cronograma([], []).
+imprimir_cronograma([Dia | T1], [CronogramaDia | T2]) :-
+	format('~nDia: ~w', [Dia]),
+	findall(Horario, horario(Horario), Horarios),
+	imprimir_horarios(Horarios, CronogramaDia),
+	imprimir_cronograma(T1, T2).
+
+imprimir_horarios([], []).
+imprimir_horarios([Horario | T1], [CronogramaHorario | T2]) :-
+	format('~n  ~w:00 - ~w', [Horario, CronogramaHorario]),
+	imprimir_horarios(T1, T2).
+
+opcao_menu(1) :-
+	!,
+	dias_semana(Dias),
+	findall(CronogramaSemana, cronograma_semana(Dias, CronogramaSemana), Cronogramas),
+	imprimir_todos_cronogramas(Cronogramas, 1), nl.
 
 opcao_menu(2) :-
-	!, 
+	!,
 	dias_semana(Dias),
-	format('Digite o dia ~w: ', [Dias]),
+	format('Dias: ~w~n', [Dias]),
+	write('Digite o dia: '),
 	read(Dia),
-	cronograma_dia(Dia, Cronograma),
-	format('~nDia: ~w', [Dia]),
-	format('~nCronograma: ~w', [Cronograma]), nl.
+	cronograma_dia(Dia, CronogramaDia),
+	imprimir_cronograma([Dia], [CronogramaDia]), nl.
 
 opcao_menu(3) :-
 	!,
