@@ -254,6 +254,8 @@ combinar(K, [_ | T1], T2) :-
 % MAIN E FUNCIONALIDADES
 % ----------------------
 
+%% main/0
+% Exibe opcoes do menu. A opcao 3 encerra o programa
 main :-
 	repeat,
 	nl,
@@ -267,6 +269,8 @@ main :-
 	opcao_menu(Opcao),
 	(Opcao == 3 -> ! ; fail). 
 
+%% imprimir_todos_cronogramas(+Cronogramas:list, +N:int) is det
+% Itera por uma lista com todos cronogramas, imprime a iteracao N e o cronograma da semana
 imprimir_todos_cronogramas([], _).
 imprimir_todos_cronogramas([Cronograma | T], N) :-
 	format('~n~nCronograma ~w:', [N]),
@@ -275,6 +279,8 @@ imprimir_todos_cronogramas([Cronograma | T], N) :-
 	N1 is N + 1,
 	imprimir_todos_cronogramas(T, N1).
 
+%% imprimir_cronograma(+Dias:list, +CronogramaDias:list) is det
+% Itera pelos dias e pelo cronograma do dia, imprimindo o dia e seus horarios
 imprimir_cronograma([], []).
 imprimir_cronograma([Dia | T1], [CronogramaDia | T2]) :-
 	format('~nDia: ~w', [Dia]),
@@ -282,11 +288,14 @@ imprimir_cronograma([Dia | T1], [CronogramaDia | T2]) :-
 	imprimir_horarios(Horarios, CronogramaDia),
 	imprimir_cronograma(T1, T2).
 
+%% imprimir_horarios(+Horarios:list, +CronogramaHorarios:list) is det
+% Itera pelos horarios de um dia, imprimindo o horario e as pessoas alocadas
 imprimir_horarios([], []).
 imprimir_horarios([Horario | T1], [CronogramaHorario | T2]) :-
 	format('~n  ~w:00 - ~w', [Horario, CronogramaHorario]),
 	imprimir_horarios(T1, T2).
 
+%% opcao_menu(+Opcao:int)
 opcao_menu(1) :-
 	!,
 	dias_semana(Dias),
