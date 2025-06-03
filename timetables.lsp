@@ -55,10 +55,10 @@
     )
 )
 
-(defun process_a_partir_ate()
+(defun processAPartirAte()
     (loop for relacA in dispo_a_partir do
         (loop for relacB in dispo_ate do
-            (if (and (eq (car relacA) (car relacB)) (eql (type-of (second relacA)) (type-of (second relacB))))
+            (if (and (eql (car relacA) (car relacB)) (eql (type-of (second relacA)) (type-of (second relacB))))
                 (if (pertence (second relacA) dias)
                     (let* ((adding nil)) (loop for dia in dias do (let* ()
                         (if (and (>= (position dia dias) (position (second relacA) dias)) (<= (position dia dias) (position (second relacB) dias))) (push (list (car relacA) dia) dispo_relac))
@@ -71,11 +71,12 @@
         )
     )
 )
+; (lucas 10 ter)
 
-(defun addToDisponiveis(dispo_dia dispo_horario disponiveis) ; (addToDisponiveis)
-    (loop for relacA in dispo_dia do
-        (loop for relacB in dispo_horario do 
-            (if (eq (car relacA) (car relacB)) 
+(defun processDispoRelac()
+    (loop for relacA in dispo_relac do
+        (loop for relacB in dispo_relac do 
+            (if (and (eql (car relacA) (car relacB)) (typep (second relacA) (type-of (car dias))) (typep (second relacB) (type-of (car horarios)))) 
                 (push (list (car relacA)(second relacB)(second relacA)) disponiveis)
             )
         )
