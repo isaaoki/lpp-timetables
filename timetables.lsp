@@ -46,9 +46,9 @@
     (michele 10)
 ))
 
-(setf disponiveis ())
+(setf disponiveis ()) ; (nome horario dia)
 
-(defun pertence(item lista) ; retorna T se tupla pertence a disponiveis
+(defun pertencep(item lista) ; retorna T se item pertence a lista
     (if (member item lista :test #'equal) 
         T 
         nil
@@ -58,12 +58,12 @@
 (defun processAPartirAte()
     (loop for relacA in dispo_a_partir do
         (loop for relacB in dispo_ate do
-            (if (and (eql (car relacA) (car relacB)) (eql (type-of (second relacA)) (type-of (second relacB))))
-                (if (pertence (second relacA) dias)
-                    (let* ((adding nil)) (loop for dia in dias do (let* ()
+            (if (and (eql (car relacA) (car relacB)) (eql (type-of (second relacA)) (type-of (second relacB)))) ; checa se relacA e relacB tratam-se da mesma pessoa e se ambas referem-se ao mesmo tipo de dado.
+                (if (pertencep (second relacA) dias) ; checa se estamos tratando da adicao de um dia ou de um horario.
+                    (let* ((adding nil)) (loop for dia in dias do (let* () ; caso seja um dia, percorre pela lista dias:
                         (if (and (>= (position dia dias) (position (second relacA) dias)) (<= (position dia dias) (position (second relacB) dias))) (push (list (car relacA) dia) dispo_relac))
                     )))
-                    (let* ((adding nil)) (loop for horario in horarios do (let* ()
+                    (let* ((adding nil)) (loop for horario in horarios do (let* () ; caso seja um horario, percorre pela lista horarios:
                         (if (and (>= (position horario horarios) (position (second relacA) horarios)) (<= (position horario horarios) (position (second relacB) horarios))) (push (list (car relacA) horario) dispo_relac))
                     )))
                 )
@@ -71,12 +71,11 @@
         )
     )
 )
-; (lucas 10 ter)
 
 (defun processDispoRelac()
     (loop for relacA in dispo_relac do
         (loop for relacB in dispo_relac do 
-            (if (and (eql (car relacA) (car relacB)) (typep (second relacA) (type-of (car dias))) (typep (second relacB) (type-of (car horarios)))) 
+            (if (and (eql (car relacA) (car relacB)) (typep (second relacA) (type-of (car dias))) (typep (second relacB) (type-of (car horarios)))) ; checa se relacA e relacB tratam-se da mesma pessoa, se relacA refefere-se a um dia e se relalcB a um horario
                 (push (list (car relacA)(second relacB)(second relacA)) disponiveis)
             )
         )
@@ -86,13 +85,6 @@
 (defun nthHorario(pos) (nth pos horarios)) ; (nthhorarios 2) -> 14
 
 (defun posDiaSem(dia) (position dia dias)) ; (nthDiaSem 'ter) -> 1
-
-(defun disponivelp(tupla) ; retorna T se tupla pertence a disponiveis
-    (if (member tupla disponiveis :test #'equal) 
-        T 
-        nil
-    )
-)
 
 (defun main()
     (let* ()
