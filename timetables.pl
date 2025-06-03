@@ -17,11 +17,11 @@ horario(8).
 horario(10).
 horario(14).
 
-%% turno(+Quantidade:int, +Horario:int, +Funcao:atom) is nondet
-% Representa um turno com a quantidade de pessoas necessaria, horario e funcao
-turno(1, 8, professor).
-turno(2, 10, professor).
-turno(1, 14, professor).
+%% turno(+Quantidade:int, +Horario:int) is nondet
+% Representa um turno com a quantidade de pessoas necessaria e horario
+turno(1, 8).
+turno(2, 10).
+turno(1, 14).
 
 % ---------------------------------------------
 % FATOS E REGRAS DA DISPONIBILIDADE DAS PESSOAS
@@ -204,15 +204,15 @@ cronograma_horarios(Dia, [Horario | T1], [Grupo | T2]) :-
 % Retorna primeiro pessoas que preferem o horario
 % Remove grupos sem compatibilidade
 grupos_possiveis(Dia, Horario, Grupos) :-
-	turno(Quantidade, Horario, Funcao),
+	turno(Quantidade, Horario),
 
 	% Pessoas disponiveis e que preferem aquele dia e horario
-	findall((Horario, Pessoa, Funcao), (
+	findall(Pessoa, (
 		disponivel_dia_horario(Pessoa, Dia, Horario),
 		prefere_dia_horario(Pessoa, Dia, Horario)),
 	DisponiveisPrefere),
 	% Pessoas disponiveis e que nao preferem aquele dia e horario
-	findall((Horario, Pessoa, Funcao), (
+	findall(Pessoa, (
 		disponivel_dia_horario(Pessoa, Dia, Horario),
 		\+ prefere_dia_horario(Pessoa, Dia, Horario)),
 	DisponiveisNaoPrefere),
@@ -230,9 +230,9 @@ grupos_possiveis(Dia, Horario, Grupos) :-
 %% checa_compatibilidade(+Grupo:list) is semidet
 % Verdadeiro se nao existe pessoas que detestam outras no grupo
 checa_compatibilidade([]).
-checa_compatibilidade([(_, Pessoa1, _) | T]) :-
-	\+ (member((_, Pessoa2, _), T), detesta(Pessoa1, Pessoa2)),
-	\+ (member((_, Pessoa2, _), T), detesta(Pessoa2, Pessoa1)),
+checa_compatibilidade([Pessoa1 | T]) :-
+	\+ (member(Pessoa2, T), detesta(Pessoa1, Pessoa2)),
+	\+ (member(Pessoa2, T), detesta(Pessoa2, Pessoa1)),
 	checa_compatibilidade(T).
 
 %% combinar(+Quantidade:int, +Lista:list, -Combinacoes:list)
