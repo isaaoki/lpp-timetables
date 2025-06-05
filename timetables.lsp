@@ -60,6 +60,18 @@
     )
 )
 
+(defun combinacoesHorario (n lista)
+    (cond
+        ((< n 0) nil)
+        ((= n 0) (list nil))
+        ((> n (length lista)) nil)
+        (T (append 
+            (mapcar #'(lambda (x) (cons (first lista) x)) (combinacoesHorario (1- n) (rest lista)))
+	        (combinacoesHorario n (rest lista))
+        ))
+    )
+)
+
 (defun gerarListaAPartirAte (nomeA nomeB infoA infoB) (let* ((lista_saida ())) ; (joca seg joca qua dias horarios) -> ((JOCA QUA) (JOCA TER) (JOCA SEG))
     (if (and (eql nomeA nomeB) (eql (type-of infoA) (type-of infoB))) ; checa se relacA e relacB tratam-se da mesma pessoa e se ambas referem-se ao mesmo tipo de dado.
         (if (pertencep infoA DIAS) ; checa se estamos tratando da adicao de um dia ou de um horario.
