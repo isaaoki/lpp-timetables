@@ -1,24 +1,24 @@
-(setf dias '(
+(defconstant DIAS '(
     seg ter qua qui sex
 ))
 
-(setf horarios '(
+(defconstant HORARIOS '(
     8 10 14
 ))
 
-(setf turnos '(
+(defconstant TURNOS '(
     (1 8)
     (1 10)
     (1 14)
 ))
 
 #|
-(setf pessoas '(
+(defconstant PESSOAS '(
     tinos bara joca vanessa mirela michele
 ))
 |#
 
-(setf disponivel '(
+(defconstant DISPONIVEL '(
     (tinos seg)
     (tinos qua)
     (tinos sex)
@@ -33,7 +33,7 @@
     (mirela 8)
 ))
 
-(setf disponivel_a_partir '(
+(defconstant DISPONIVEL_A_PARTIR '(
     (tinos 10)
     (joca seg)
     (michele ter)
@@ -41,13 +41,13 @@
     (michele 8)
 ))
 
-(setf disponivel_ate '(
+(defconstant DISPONIVEL_ATE '(
     (joca qua)
     (michele qua)
     (michele 10)
 ))
 
-(setf disponiveis ()) ; (nome horario dia)
+;;; (setf disponiveis ()) ; (nome horario dia)
 
 (setf prefere_relac '(
 
@@ -60,67 +60,66 @@
     )
 )
 
-(defun gerarListaAPartirAte (nomeA nomeB infoA infoB dias hoarios) (let* ((lista_saida ())) ; (joca seg joca qua dias horarios) -> ((JOCA QUA) (JOCA TER) (JOCA SEG))
+(defun gerarListaAPartirAte (nomeA nomeB infoA infoB) (let* ((lista_saida ())) ; (joca seg joca qua dias horarios) -> ((JOCA QUA) (JOCA TER) (JOCA SEG))
     (if (and (eql nomeA nomeB) (eql (type-of infoA) (type-of infoB))) ; checa se relacA e relacB tratam-se da mesma pessoa e se ambas referem-se ao mesmo tipo de dado.
-        (if (pertencep infoA dias) ; checa se estamos tratando da adicao de um dia ou de um horario.
-            (loop for dia in dias do ; caso seja um dia, percorre pela lista dias:
-                (if (and (>= (position dia dias) (position infoA dias)) (<= (position dia dias) (position infoB dias))) (push (list nomeA dia) lista_saida))
+        (if (pertencep infoA DIAS) ; checa se estamos tratando da adicao de um dia ou de um horario.
+            (dolist (dia DIAS) ; caso seja um dia, percorre pela lista dias:
+                (if (and (>= (position dia DIAS) (position infoA DIAS)) (<= (position dia DIAS) (position infoB DIAS))) (push (list nomeA dia) lista_saida))
             )
-            (loop for horario in horarios do ; caso seja um horario, percorre pela lista horarios:
-                (if (and (>= (position horario horarios) (position infoA horarios)) (<= (position horario horarios) (position infoB horarios))) (push (list nomeA horario) lista_saida))
+            (dolist (horario HORARIOS) ; caso seja um dia, percorre pela lista dias:
+                (if (and (>= (position horario HORARIOS) (position infoA HORARIOS)) (<= (position horario HORARIOS) (position infoB HORARIOS))) (push (list nomeA horario) lista_saida))
             )
         )
     )
     lista_saida
 ))
 
-(defun gerarListaAPartir (nomeA infoA dias hoarios) (let* ((lista_saida ())) ; (tinos 10 dias horarios) -> ((TINOS 10) (TINOS 14))
-    (if (pertencep infoA dias) ; checa se estamos tratando da adicao de um dia ou de um horario.
-        (loop for dia in dias do ; caso seja um dia, percorre pela lista dias:
-            (if (>= (position dia dias) (position infoA dias)) (push (list nomeA dia) lista_saida))
+(defun gerarListaAPartir (nomeA infoA) (let* ((lista_saida ())) ; (tinos 10 dias horarios) -> ((TINOS 10) (TINOS 14))
+    (if (pertencep infoA DIAS) ; checa se estamos tratando da adicao de um dia ou de um horario.
+        (dolist (dia DIAS) ; caso seja um dia, percorre pela lista dias:
+            (if (>= (position dia DIAS) (position infoA DIAS)) (push (list nomeA dia) lista_saida))
         )
-        (loop for horario in horarios do ; caso seja um horario, percorre pela lista horarios:
-            (if (>= (position horario horarios) (position infoA horarios)) (push (list nomeA horario) lista_saida))
+        (dolist (horario HORARIOS) ; caso seja um horario, percorre pela lista horarios:
+            (if (>= (position horario HORARIOS) (position infoA HORARIOS)) (push (list nomeA horario) lista_saida))
         )
     )
     lista_saida
 ))
 
-(defun processAPartirAte(a_partir ate is_disponivel) ; (processAPartirAte disponivel_a_partir disponivel_ate T) -> nil (funcao sem retorno)
-    (loop for relacA in a_partir do (let* ((is_a_partir_only T)) ; assumimos, no inicio, que nao ha uma relacao disponivel_ate compativel.
-        (loop for relacB in ate do (let* ((lista (gerarListaAPartirAte (car relacA) (car relacB) (second relacA) (second relacB) dias horarios)))
-            (if is_disponivel
-                (if lista (setf disponivel (append lista disponivel)))
-                (if lista (setf prefere_relac (append lista prefere_relac)))
-            )
-            (if lista (setf is_a_partir_only nil)) ; se a funcao retornou uma lista nao vazia, a mesma foi capaz de achar uma relacao disponivel_ate compativel com relacA
-        ))
-        ;; caso esteja definida apenas a relacao disponivel_a_partir:
-        (if is_a_partir_only (let* ((lista (gerarListaAPartir (car relacA) (second relacA) dias horarios)))
-            (if is_disponivel
-                (setf disponivel (append lista disponivel))
-                (setf prefere_relac (append lista prefere_relac))
-            )
-        ))
-    ))
-)
+(defun processAPartirAte(a_partir ate) (let* ((lista_saida ())); (processAPartirAte a_partir ate) -> 
+    (dolist (relacA a_partir)
+        (setf is_a_partir_only T) ; assumimos, no inicio, que nao ha uma relacao ate compativel.
+        (dolist (relacB ate)
+            (setf lista (gerarListaAPartirAte (car relacA) (car relacB) (second relacA) (second relacB)))    
+            (if lista (setf lista_saida (append lista lista_saida)))
+            (if lista (setf is_a_partir_only nil)) ; se a funcao retornou uma lista nao vazia, a mesma foi capaz de achar uma relacao ate compativel com relacA
+        )
+        ;; caso esteja definida apenas a relacao a_partir:
+        (if is_a_partir_only 
+            (setf lista_saida (append (gerarListaAPartir (car relacA) (second relacA)) lista_saida))        
+        )
+    )
+    lista_saida
+))
 
-(defun processDispoRelac()
-    (loop for relacA in disponivel do
-        (loop for relacB in disponivel do (let* ((nomeA (car relacA)) (nomeB (car relacB)) (infoA (second relacA)) (infoB (second relacB)))
-            (if (and (eql nomeA nomeB) (typep infoA (type-of (car dias))) (typep infoB (type-of (car horarios)))) ; checa se relacA e relacB tratam-se da mesma pessoa, se relacA refefere-se a um dia e se relalcB a um horario
-                (push (list nomeA infoA infoB) disponiveis)
+(defun processDispoRelac(disponivel_temp) (let* ((lista_saida ())) 
+    (dolist (relacA disponivel_temp)
+        (dolist (relacB disponivel_temp)
+            (setf nomeA (car relacA) nomeB (car relacB) infoA (second relacA) infoB (second relacB))
+            (if (and (eql nomeA nomeB) (typep infoA (type-of (car DIAS))) (typep infoB (type-of (car HORARIOS)))) ; checa se relacA e relacB tratam-se da mesma pessoa, se relacA refefere-se a um dia e se relalcB a um horario
+                (push (list nomeA infoA infoB) lista_saida)
             )
-        ))
-    )   
-)
+        )
+    )
+    lista_saida
+))
 
 (defun cronograma_horario (dia turno) ; (cronograma_horario 'ter '(1 8)) -> ((MICHELE TER 8) (JOCA TER 10) (VANESSA TER 8))
     (let* ((disponivel_dia_horario '()))
-        (loop for disponivel in disponiveis do
-            (let* ((dia_disponivel (second disponivel)) (horario_disponivel (third disponivel)))
+        (loop for disponivel_temp in disponiveis do
+            (let* ((dia_disponivel (second disponivel_temp)) (horario_disponivel (third disponivel_temp)))
                     (if (and (eql dia_disponivel dia) (eql horario_disponivel (second turno))) ; pessoa está disponível nesse dia e turno
-                    (push (list (car disponivel) dia_disponivel horario_disponivel)
+                    (push (list (car disponivel_temp) dia_disponivel horario_disponivel)
                       disponivel_dia_horario)
                     ) 
             )
@@ -138,19 +137,19 @@
 
 (defun cronograma_semana() ; (cronograma_semana) -> ((((TINOS SEX 14)) ((TINOS SEX 10)) NIL) (((BARA QUI 14)) ((VANESSA QUI 10)) ((VANESSA QUI 8) (MIRELA QUI 8))) (((TINOS QUA 14)) ((MICHELE QUA 10) (JOCA QUA 10) (TINOS QUA 10)) ((MICHELE QUA 8))) (NIL ((MICHELE TER 10) (JOCA TER 10) (VANESSA TER 10)) ((MICHELE TER 8) (VANESSA TER 8))) (((TINOS SEG 14)) ((JOCA SEG 10) (TINOS SEG 10)) NIL))
     (let* ((disponiveis_semana '()))
-        (loop for dia in dias do
+        (loop for dia in DIAS do
             (push (cronograma_dia dia) disponiveis_semana)
         ) 
     disponiveis_semana) ; retorna a lista de pessoas disponiveis em uma semana (lista de listas de listas)
 )
 
-(defun nthHorario(pos) (nth pos horarios)) ; (nthhorarios 2) -> 14
+(defun nthHorario(pos) (nth pos HORARIOS)) ; (nthhorarios 2) -> 14
 
-(defun posDiaSem(dia) (position dia dias)) ; (nthDiaSem 'ter) -> 1
+(defun posDiaSem(dia) (position dia DIAS)) ; (nthDiaSem 'ter) -> 1
 
 (defun main()
     (let* ()
-        (processAPartirAte disponivel_a_partir disponivel_ate T)
-        (processDispoRelac)
+        (setf disponivel_temp (append DISPONIVEL (processAPartirAte DISPONIVEL_A_PARTIR DISPONIVEL_ATE)))
+        (setf disponiveis (processDispoRelac disponivel_temp))
     )
 )
