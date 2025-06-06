@@ -63,7 +63,7 @@
     (cond
         ((< n 0) nil)
         ((= n 0) (list nil))
-        ((> n (length lista)) nil)
+        ((>= n (length lista)) (list lista))
         (T (append 
             (mapcar #'(lambda (x) (cons (first lista) x)) (combinacoesHorario (1- n) (rest lista)))
 	        (combinacoesHorario n (rest lista))
@@ -125,33 +125,33 @@
     lista_saida
 ))
 
-(defun cronograma_horario (dia turno) ; (cronograma_horario 'ter '(1 8)) -> ((MICHELE TER 8) (JOCA TER 10) (VANESSA TER 8))
+(defun cronograma_horario (dia turno disponiveis)
     (let* ((disponivel_dia_horario '()))
-        (loop for disponivel_temp in disponiveis do
+        (dolist (disponivel_temp disponiveis disponivel_dia_horario)
             (let* ((dia_disponivel (second disponivel_temp)) (horario_disponivel (third disponivel_temp)))
-                    (if (and (eql dia_disponivel dia) (eql horario_disponivel (second turno))) ; pessoa está disponível nesse dia e turno
+                    (when (and (eql dia_disponivel dia) (eql horario_disponivel (second turno))) ; pessoa está disponível nesse dia e turno
                     (push (list (car disponivel_temp) dia_disponivel horario_disponivel)
                       disponivel_dia_horario)
                     ) 
             )
         )
-    disponivel_dia_horario) ; retorna a lista de pessoas disponiveis em um dia e horario (uma lista)
+    ) ; retorna a lista de pessoas disponiveis em um dia e horario (uma lista)
 )
 
-(defun cronograma_dia (dia) ; (cronograma_dia 'ter) -> (NIL ((MICHELE TER 10) (JOCA TER 10) (VANESSA TER 10)) ((MICHELE TER 8) (VANESSA TER 8)))
+(defun cronograma_dia (dia)
     (let* ((disponiveis_dia '()))
-        (loop for turno in turnos do 
-            (setf disponiveis_dia (enqueue (cronograma_horario dia turno) disponiveis_dia))
+        (dolist (turno TURNOS disponiveis_dia) 
+            (setf disponiveis_dia (enqueue (cronograma_horario dia turno DISPONIVEIS) disponiveis_dia))
         )
-    disponiveis_dia) ; retorna a lista de pessoas disponiveis em um dia (lista de listas)
+    ) ; retorna a lista de pessoas disponiveis em um dia (lista de listas)
 )
 
-(defun cronograma_semana() ; (cronograma_semana) -> ((((TINOS SEX 14)) ((TINOS SEX 10)) NIL) (((BARA QUI 14)) ((VANESSA QUI 10)) ((VANESSA QUI 8) (MIRELA QUI 8))) (((TINOS QUA 14)) ((MICHELE QUA 10) (JOCA QUA 10) (TINOS QUA 10)) ((MICHELE QUA 8))) (NIL ((MICHELE TER 10) (JOCA TER 10) (VANESSA TER 10)) ((MICHELE TER 8) (VANESSA TER 8))) (((TINOS SEG 14)) ((JOCA SEG 10) (TINOS SEG 10)) NIL))
+(defun cronograma_semana()
     (let* ((disponiveis_semana '()))
-        (loop for dia in DIAS do
+        (dolist (dia DIAS disponiveis_semana)
             (setf disponiveis_semana (enqueue (cronograma_dia dia) disponiveis_semana))
         ) 
-    disponiveis_semana) ; retorna a lista de pessoas disponiveis em uma semana (lista de listas de listas)
+    ) ; retorna a lista de pessoas disponiveis em uma semana (lista de listas de listas)
 )
 
 (defun nthHorario(pos) (nth pos HORARIOS)) ; (nthhorarios 2) -> 14
@@ -164,5 +164,6 @@
     (let* ()
         (setf disponivel_temp (append DISPONIVEL (processAPartirAte DISPONIVEL_A_PARTIR DISPONIVEL_ATE)))
         (setf disponiveis (processDispoRelac disponivel_temp))
+        (cronograma_semana)
     )
 )
