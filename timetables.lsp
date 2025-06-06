@@ -23,13 +23,13 @@
     (tinos qua)
     (tinos sex)
     (bara qui)
-    (vanessa ter)
-    (vanessa qui)
-    (mirela qui)
     (bara 14)
     (joca 10)
     (vanessa 8)
     (vanessa 10)
+    (vanessa ter)
+    (vanessa qui)
+    (mirela qui)
     (mirela 8)
 ))
 
@@ -37,14 +37,13 @@
     (tinos 10)
     (joca seg)
     (michele ter)
-    (isa ter)
     (michele 8)
 ))
 
 (defconstant DISPONIVEL_ATE '(
+    (tinos 14)
     (joca qua)
     (michele qua)
-    (michele 10)
 ))
 
 ;;; (setf disponiveis ()) ; (nome horario dia)
@@ -142,7 +141,7 @@
 (defun cronograma_dia (dia) ; (cronograma_dia 'ter) -> (NIL ((MICHELE TER 10) (JOCA TER 10) (VANESSA TER 10)) ((MICHELE TER 8) (VANESSA TER 8)))
     (let* ((disponiveis_dia '()))
         (loop for turno in turnos do 
-             (push (cronograma_horario dia turno) disponiveis_dia)
+            (setf disponiveis_dia (enqueue (cronograma_horario dia turno) disponiveis_dia))
         )
     disponiveis_dia) ; retorna a lista de pessoas disponiveis em um dia (lista de listas)
 )
@@ -150,7 +149,7 @@
 (defun cronograma_semana() ; (cronograma_semana) -> ((((TINOS SEX 14)) ((TINOS SEX 10)) NIL) (((BARA QUI 14)) ((VANESSA QUI 10)) ((VANESSA QUI 8) (MIRELA QUI 8))) (((TINOS QUA 14)) ((MICHELE QUA 10) (JOCA QUA 10) (TINOS QUA 10)) ((MICHELE QUA 8))) (NIL ((MICHELE TER 10) (JOCA TER 10) (VANESSA TER 10)) ((MICHELE TER 8) (VANESSA TER 8))) (((TINOS SEG 14)) ((JOCA SEG 10) (TINOS SEG 10)) NIL))
     (let* ((disponiveis_semana '()))
         (loop for dia in DIAS do
-            (push (cronograma_dia dia) disponiveis_semana)
+            (setf disponiveis_semana (enqueue (cronograma_dia dia) disponiveis_semana))
         ) 
     disponiveis_semana) ; retorna a lista de pessoas disponiveis em uma semana (lista de listas de listas)
 )
@@ -158,6 +157,8 @@
 (defun nthHorario(pos) (nth pos HORARIOS)) ; (nthhorarios 2) -> 14
 
 (defun posDiaSem(dia) (position dia DIAS)) ; (nthDiaSem 'ter) -> 1
+
+(defun enqueue(val lis) (append lis (list val)))
 
 (defun main()
     (let* ()
