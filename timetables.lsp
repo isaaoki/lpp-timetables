@@ -195,6 +195,7 @@
             (push (montar-cronograma-dia dia disponivel-dia-horario prefere-dia-horario) cronograma)) 
         (reverse cronograma)))
 
+; Imprime o cronograma dos horarios do dia fornecido
 (defun imprimir-horarios(dia disponivel-dia-horario prefere-dia-horario) (let* ()
     (format  T "Dia: ~w~%" dia)
     (dolist (turno TURNOS)
@@ -202,6 +203,7 @@
     )
 ))
 
+; Imprime o cronograma de todos os dias
 (defun imprimir-cronograma(disponivel-dia-horario prefere-dia-horario) (let* ()
     (dolist (dia DIAS)
         (imprimir-horarios dia disponivel-dia-horario prefere-dia-horario)
