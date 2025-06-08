@@ -12,12 +12,6 @@
     (1 14)
 ))
 
-#|
-(defconstant PESSOAS '(
-    tinos bara joca vanessa mirela michele
-))
-|#
-
 (defconstant DISPONIVEL '(
     (tinos seg)
     (tinos qua)
@@ -94,18 +88,12 @@
             (if (pertencep infoA DIAS) 
                 (dolist (dia DIAS) ; Caso seja um dia, percorre pela lista DIAS
                     (if (and (>= (position dia DIAS) (position infoA DIAS)) (<= (position dia DIAS) (position infoB DIAS))) 
-                        (push (list nomeA dia) lista-saida))
-                )
+                        (push (list nomeA dia) lista-saida)))
 
                 (dolist (horario HORARIOS) ; Caso seja um horario, percorre pela lista HORARIOS
                     (if (and (>= (position horario HORARIOS) (position infoA HORARIOS)) (<= (position horario HORARIOS) (position infoB HORARIOS))) 
-                        (push (list nomeA horario) lista-saida))
-                )
-            )
-        )
-        lista-saida
-    )
-)
+                        (push (list nomeA horario) lista-saida)))))
+        lista-saida))
 
 ; Gera lista com pares (nome dia/horario) para informacoes com inicio apenas
 ; DISPONIVEL-A-PARTIR (tinos 10) -> ((TINOS 10) (TINOS 14))
@@ -113,49 +101,39 @@
     (let* ((lista-saida ()))
         (if (pertencep infoA DIAS) 
             (dolist (dia DIAS) ; Caso seja um dia, percorre pela lista DIAS
-                (if (>= (position dia DIAS) (position infoA DIAS)) (push (list nomeA dia) lista-saida))
-            )
+                (if (>= (position dia DIAS) (position infoA DIAS)) (push (list nomeA dia) lista-saida)))
+            
             (dolist (horario HORARIOS) ; Caso seja um horario, percorre pela lista HORARIOS
-                (if (>= (position horario HORARIOS) (position infoA HORARIOS)) (push (list nomeA horario) lista-saida))
-            )
-        )
-        lista-saida
-    )
-)
+                (if (>= (position horario HORARIOS) (position infoA HORARIOS)) (push (list nomeA horario) lista-saida))))
+        lista-saida))
 
-; Recebe lista A-PARTIR e ATE
+; Rece listas A-PARTIR e ATE e processa listas para gerar intervalos
 (defun process-a-partir-ate(a-partir ate) 
     (let* ((lista-saida ()))
         (dolist (relacA a-partir)
-            (setf is-a-partir-only T) ; Assumimos, no inicio, que nao ha uma relacao ate compativel
-            
-            (dolist (relacB ate)
-                (setf lista (gerar-lista-a-partir-ate (car relacA) (car relacB) (second relacA) (second relacB)))    
-                (if lista (setf lista-saida (append lista lista-saida)))
-                (if lista (setf is-a-partir-only nil)) ; se a funcao retornou uma lista nao vazia, a mesma foi capaz de achar uma relacao ate compativel com relacA
-            )
-            ;; caso esteja definida apenas a relacao a_partir:
-            (if is-a-partir-only 
-                (setf lista-saida (append (gerar-lista-a-partir (car relacA) (second relacA)) lista-saida))        
-            )
-        )
-        lista-saida
-    )
-)
+            ; Assumimos, no inicio, que nao ha uma relacao ate compativel
+            (let* ((sem-relac-ate T) (nomeA (car relacA)) (infoA (second relacA)))
+                (dolist (relacB ate) 
+                    (let* ((nomeB (car relacB)) (infoB (second relacB)) (lista (gerar-lista-a-partir-ate nomeA nomeB infoA infoB)))
+                        (when lista 
+                            ; Se a funcao retornou uma lista nao vazia, a mesma foi capaz de achar uma relacao ate compativel com relacA
+                            (setf lista-saida (append lista lista-saida))
+                            (setf sem-relac-ate nil))))
+                ; Caso esteja definida apenas a relacao a_partir
+                (if sem-relac-ate (setf lista-saida (append (gerar-lista-a-partir nomeA infoA) lista-saida)))))
+        lista-saida))
 
 ; Gera lista com pares (nome dia horario) de acordo com a lista de entrada
-(defun process-relac(lista) (let* ((lista-saida ())) 
-    (dolist (relacA lista)
-        (dolist (relacB lista)
-            (setf nomeA (car relacA) nomeB (car relacB) infoA (second relacA) infoB (second relacB))
-            ; Checa se relacA e relacB tratam-se da mesma pessoa, se relacA refefere-se a um dia e se relacB a um horario
-            (if (and (eql nomeA nomeB) (typep infoA (type-of (car DIAS))) (typep infoB (type-of (car HORARIOS))))
-                (push (list nomeA infoA infoB) lista-saida)
-            )
-        )
-    )
-    lista-saida
-))
+(defun process-relac(lista) 
+    (let* ((lista-saida ())) 
+        (dolist (relacA lista)
+            (dolist (relacB lista)
+                (let* ((nomeA (car relacA)) (nomeB (car relacB)) (infoA (second relacA)) (infoB (second relacB)))
+                ; Checa se relacA e relacB tratam-se da mesma pessoa, se relacA refefere-se a um dia e se relacB a um horario
+                    (if (and (eql nomeA nomeB) (typep infoA (type-of (car DIAS))) (typep infoB (type-of (car HORARIOS))))
+                        (push (list nomeA infoA infoB) lista-saida)))))
+        lista-saida))
+
 
 ; Retorna lista com combinacoes validas, retirando combinacoes com pessoas incompativeis
 (defun process-detesta (lista-combinacoes) 
@@ -170,7 +148,7 @@
                             (setf compativel nil))))
                 ; Se é uma relacao compativel, adiciona as combinacoes validas
                 (if compativel (push combinacao combinacoes-validas))))
-        (nreverse combinacoes-validas)))
+        combinacoes-validas))
 
 ; Retorna as possiveis combinacoes de um horario, adicionando index indicando a preferencia e processando relacoes detesta
 ; ((0 (TINOS SEG 10) (JOCA SEG 10)) (1 (MIRELA SEG 10) (JOCA SEG 10)))
