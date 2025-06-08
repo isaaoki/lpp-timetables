@@ -63,7 +63,6 @@
 (defconstant DETESTA '(
     (michele joca)
 ))
-;;; (setf disponiveis ()) ; (nome horario dia)
 
 (defun pertencep(item lista) ; retorna T se item pertence a lista
     (if (member item lista :test #'equal) 
@@ -72,7 +71,7 @@
     )
 )
 
-(defun combinacoes (n lista)
+(defun combinacoes (n lista) ; gera combinacoes de uma lista a partir de n
     (cond
         ((< n 0) nil)
         ((= n 0) (list nil))
@@ -84,130 +83,142 @@
     )
 )
 
-(defun gerarListaAPartirAte (nomeA nomeB infoA infoB) (let* ((lista_saida ())) ; (joca seg joca qua dias horarios) -> ((JOCA QUA) (JOCA TER) (JOCA SEG))
-    (if (and (eql nomeA nomeB) (eql (type-of infoA) (type-of infoB))) ; checa se relacA e relacB tratam-se da mesma pessoa e se ambas referem-se ao mesmo tipo de dado.
-        (if (pertencep infoA DIAS) ; checa se estamos tratando da adicao de um dia ou de um horario.
-            (dolist (dia DIAS) ; caso seja um dia, percorre pela lista dias:
-                (if (and (>= (position dia DIAS) (position infoA DIAS)) (<= (position dia DIAS) (position infoB DIAS))) (push (list nomeA dia) lista_saida))
+; Gera lista com pares (nome dia/horario) para informacoes com inicio e fim 
+(defun gerar-lista-a-partir-ate (nomeA nomeB infoA infoB)  
+    (let* ((lista-saida ())) 
+        (if (and (eql nomeA nomeB) (eql (type-of infoA) (type-of infoB))) ; checa se trata da mesma pessoa e se ambas referem-se ao mesmo tipo de dado
+            (if (pertencep infoA DIAS) ; checa se estamos tratando da adicao de um dia ou de um horario
+                (dolist (dia DIAS) ; caso seja um dia, percorre pela lista DIAS
+                    (if (and (>= (position dia DIAS) (position infoA DIAS)) (<= (position dia DIAS) (position infoB DIAS))) 
+                        (push (list nomeA dia) lista-saida))
+                )
+                (dolist (horario HORARIOS) ; caso seja um horario, percorre pela lista HORARIOS
+                    (if (and (>= (position horario HORARIOS) (position infoA HORARIOS)) (<= (position horario HORARIOS) (position infoB HORARIOS))) 
+                        (push (list nomeA horario) lista-saida))
+                )
             )
-            (dolist (horario HORARIOS) ; caso seja um dia, percorre pela lista dias:
-                (if (and (>= (position horario HORARIOS) (position infoA HORARIOS)) (<= (position horario HORARIOS) (position infoB HORARIOS))) (push (list nomeA horario) lista_saida))
-            )
+        )
+        lista-saida
+    )
+)
+
+; Gera lista com pares (nome dia/horario) para informacoes com inicio apenas
+; DISPONIVEL-A-PARTIR (tinos 10) -> ((TINOS 10) (TINOS 14))
+(defun gerar-lista-a-partir (nomeA infoA) (let* ((lista-saida ()))
+    (if (pertencep infoA DIAS) ; checa se estamos tratando da adicao de um dia ou de um horario
+        (dolist (dia DIAS) ; caso seja um dia, percorre pela lista DIAS
+            (if (>= (position dia DIAS) (position infoA DIAS)) (push (list nomeA dia) lista-saida))
+        )
+        (dolist (horario HORARIOS) ; caso seja um horario, percorre pela lista HORARIOS
+            (if (>= (position horario HORARIOS) (position infoA HORARIOS)) (push (list nomeA horario) lista-saida))
         )
     )
-    lista_saida
+    lista-saida
 ))
 
-(defun gerarListaAPartir (nomeA infoA) (let* ((lista_saida ())) ; (tinos 10 dias horarios) -> ((TINOS 10) (TINOS 14))
-    (if (pertencep infoA DIAS) ; checa se estamos tratando da adicao de um dia ou de um horario.
-        (dolist (dia DIAS) ; caso seja um dia, percorre pela lista dias:
-            (if (>= (position dia DIAS) (position infoA DIAS)) (push (list nomeA dia) lista_saida))
-        )
-        (dolist (horario HORARIOS) ; caso seja um horario, percorre pela lista horarios:
-            (if (>= (position horario HORARIOS) (position infoA HORARIOS)) (push (list nomeA horario) lista_saida))
-        )
-    )
-    lista_saida
-))
-
-(defun processAPartirAte(a_partir ate) (let* ((lista_saida ())); (processAPartirAte a_partir ate) -> 
+(defun process-a-partir-ate(a_partir ate) (let* ((lista_saida ())); (processAPartirAte a_partir ate) -> 
     (dolist (relacA a_partir)
         (setf is_a_partir_only T) ; assumimos, no inicio, que nao ha uma relacao ate compativel.
         (dolist (relacB ate)
-            (setf lista (gerarListaAPartirAte (car relacA) (car relacB) (second relacA) (second relacB)))    
+            (setf lista (gerar-lista-a-partir-ate (car relacA) (car relacB) (second relacA) (second relacB)))    
             (if lista (setf lista_saida (append lista lista_saida)))
             (if lista (setf is_a_partir_only nil)) ; se a funcao retornou uma lista nao vazia, a mesma foi capaz de achar uma relacao ate compativel com relacA
         )
         ;; caso esteja definida apenas a relacao a_partir:
         (if is_a_partir_only 
-            (setf lista_saida (append (gerarListaAPartir (car relacA) (second relacA)) lista_saida))        
+            (setf lista_saida (append (gerar-lista-a-partir (car relacA) (second relacA)) lista_saida))        
         )
     )
     lista_saida
 ))
 
-(defun processRelac(lista) (let* ((lista_saida ())) 
+; Gera lista com pares (nome dia horario) de acordo com a lista de entrada
+(defun process-relac(lista) (let* ((lista-saida ())) 
     (dolist (relacA lista)
         (dolist (relacB lista)
             (setf nomeA (car relacA) nomeB (car relacB) infoA (second relacA) infoB (second relacB))
             (if (and (eql nomeA nomeB) (typep infoA (type-of (car DIAS))) (typep infoB (type-of (car HORARIOS)))) ; checa se relacA e relacB tratam-se da mesma pessoa, se relacA refefere-se a um dia e se relalcB a um horario
-                (push (list nomeA infoA infoB) lista_saida)
+                (push (list nomeA infoA infoB) lista-saida)
             )
         )
     )
-    lista_saida
+    lista-saida
 ))
 
-(defun processDetesta(lista) (let* ((lista_saida ()))
-    (dolist (item lista)
-        (setf toleravel T)
-        (dolist (nomeA item)
-            (dolist (nomeB item)
-                (if (pertencep (list nomeA nomeB) DETESTA) (setf toleravel nil))
+(defun process-detesta (lista-combinacoes) 
+    (let* ((combinacoes-validas ())) ; recebe lista e retira combinacoes em que pessoas se detestam
+        (dolist (combinacao lista-combinacoes)
+            (setf compativel T)
+            (dolist (pessoaA combinacao)
+                (dolist (pessoaB combinacao)
+                    (if (pertencep (list pessoaA pessoaB) DETESTA) (setf compativel nil))
+                )
             )
-        )
-        (if toleravel (push item lista_saida))
+            (if compativel (push combinacao combinacoes-validas))
+        ) 
+        combinacoes-validas
     )
-    lista_saida
-))
+)
 
-(defun combinacoesHorario (turno disponiveis_horario prefere_dia_horario) (let* ((lista_saida ())) ; ((0 (TINOS SEG 10) (JOCA SEG 10)) ((MIRELA SEG 10) (JOCA SEG 10)))
-    (setf lista_temp (combinacoes (car turno) disponiveis_horario)) ; monta combinacoes
-    (dolist (item_temp lista_temp lista_saida) 
-        (setf quant_prefere 0)
-        (setf item_saida ())
-        (dolist (subitem item_temp)
-            (if (pertencep subitem prefere_dia_horario) (incf quant_prefere)) ; se pessoa possui preferencia, incrementa o indice quant_prefere
-            (push (car subitem) item_saida)
-        )
-        (push quant_prefere item_saida)
-        (push item_saida lista_saida)
-    ) ; ((0 TINOS JOCA) (0 VANESSA MICHELE) ...)
-    (processDetesta lista_saida)
-))
+(defun montar-combinacoes-horario (turno cronograma-horario prefere-dia-horario) 
+    (let* ((lista-saida ())) ; ((0 (TINOS SEG 10) (JOCA SEG 10)) ((MIRELA SEG 10) (JOCA SEG 10)))
+        (setf lista-temp (combinacoes (car turno) cronograma-horario)) ; monta combinacoes
+        (dolist (item-temp lista-temp lista-saida) 
+            (setf quant-prefere 0)
+            (setf item-saida ())
+            (dolist (subitem item-temp)
+                (if (pertencep subitem prefere-dia-horario) (incf quant-prefere)) ; se pessoa possui preferencia, incrementa o indice quant_prefere
+                (push (car subitem) item-saida)
+            )
+            (push quant-prefere item-saida)
+            (push item-saida lista-saida)
+        ) ; ((0 TINOS JOCA) (0 VANESSA MICHELE) ...)
+        (process-detesta lista-saida)
+    )
+)
 
-(defun cronogramaHorario (dia turno disponiveis)
-    (let* ((disponivel_dia_horario '()))
-        (dolist (disponivel_temp disponiveis disponivel_dia_horario)
-            (let* ((dia_disponivel (second disponivel_temp)) (horario_disponivel (third disponivel_temp)))
-                    (when (and (eql dia_disponivel dia) (eql horario_disponivel (second turno))) ; pessoa está disponível nesse dia e turno
-                    (push (list (car disponivel_temp) dia_disponivel horario_disponivel)
-                        disponivel_dia_horario)
+(defun montar-cronograma-horario (dia turno disponivel-dia-horario prefere-dia-horario) ; gera os possiveis cronograma do horario
+    (let* ((cronograma-horario '()))
+        (dolist (disponivel-temp disponivel-dia-horario cronograma-horario)
+            (let* ((dia-disponivel (second disponivel-temp)) (horario-disponivel (third disponivel-temp)))
+                    (when (and (eql dia-disponivel dia) (eql horario-disponivel (second turno))) ; checa se pessoa está disponível nesse dia e turno
+                    (push (list (car disponivel-temp) dia-disponivel horario-disponivel)
+                        cronograma-horario)
                     ) 
             )
         )
-        (combinacoesHorario turno disponivel_dia_horario prefere_dia_horario)
-    ) ; retorna a lista de pessoas disponiveis em um dia e horario (uma lista)
+        (montar-combinacoes-horario turno cronograma-horario prefere-dia-horario)
+    ) ; retorna as possiveis combinacoes de pessoas disponiveis e com index prefere em um dia e horario (uma lista)
 )
 
-(defun cronogramaDia (dia disponiveis)
-    (let* ((disponiveis_dia '()))
-        (dolist (turno TURNOS disponiveis_dia) 
-            (setf disponiveis_dia (enqueue (cronogramaHorario dia turno DISPONIVEIS) disponiveis_dia))
+(defun montar-cronograma-dia (dia disponivel-dia-horario prefere-dia-horario) ; gera o cronograma do dia, passando pelos turnos
+    (let* ((cronograma-dia '()))
+        (dolist (turno TURNOS cronograma-dia) 
+            (setf cronograma-dia (enqueue (montar-cronograma-horario dia turno disponivel-dia-horario prefere-dia-horario) cronograma-dia))
         )
     ) ; retorna a lista de pessoas disponiveis em um dia (lista de listas)
 )
 
-(defun cronogramaSemana(disponiveis)
-    (let* ((disponiveis_semana '()))
-        (dolist (dia DIAS disponiveis_semana)
-            (setf disponiveis_semana (enqueue (cronogramaDia dia disponiveis) disponiveis_semana))
+(defun montar-cronograma-semana (disponivel-dia-horario prefere-dia-horario) ; gera o cronograma da semana, passando pelos dias
+    (let* ((cronograma '()))
+        (dolist (dia DIAS cronograma)
+            (setf cronograma (enqueue (montar-cronograma-dia dia disponivel-dia-horario prefere-dia-horario) cronograma))
         ) 
-    ) ; retorna a lista de pessoas disponiveis em uma semana (lista de listas de listas)
+    ) ; retorna lista de pessoas disponiveis (lista de listas de listas)
 )
 
-(defun nthHorario(pos) (nth pos HORARIOS)) ; (nthhorarios 2) -> 14
+; (defun nthHorario(pos) (nth pos HORARIOS)) ; (nthhorarios 2) -> 14
 
-(defun posDiaSem(dia) (position dia DIAS)) ; (nthDiaSem 'ter) -> 1
+; (defun posDiaSem(dia) (position dia DIAS)) ; (nthDiaSem 'ter) -> 1
 
-(defun enqueue(val lis) (append lis (list val)))
+(defun enqueue(item lista) (append lista (list item)))
 
 (defun main()
     (let* ()
-        (setf disponivel_temp (append DISPONIVEL (processAPartirAte DISPONIVEL_A_PARTIR DISPONIVEL_ATE)))
-        (setf disponiveis (processRelac disponivel_temp))
-        (setf prefere_temp (append PREFERE (processAPartirAte PREFERE_A_PARTIR PREFERE_ATE)))
-        (setf prefere_dia_horario (processRelac prefere_temp))
-        (cronogramaSemana disponiveis)
+        (setf disponivel-temp (append DISPONIVEL (process-a-partir-ate DISPONIVEL_A_PARTIR DISPONIVEL_ATE)))
+        (setf disponivel-dia-horario (process-relac disponivel-temp))
+        (setf prefere-temp (append PREFERE (process-a-partir-ate PREFERE_A_PARTIR PREFERE_ATE)))
+        (setf prefere-dia-horario (process-relac prefere-temp))
+        (montar-cronograma-semana disponivel-dia-horario prefere-dia-horario)
     )
 )
