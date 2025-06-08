@@ -196,19 +196,19 @@
         (reverse cronograma)))
 
 ; Imprime o cronograma dos horarios do dia fornecido
-(defun imprimir-horarios(dia disponivel-dia-horario prefere-dia-horario) (let* ()
+(defun imprimir-horarios(dia cronograma-dia) (let* ()
     (format  T "Dia: ~w~%" dia)
     (dolist (turno TURNOS)
-        (format  T "  ~w:00 - ~w~%" (second turno) (montar-cronograma-horario dia turno disponivel-dia-horario prefere-dia-horario))
+        (format  T "  ~w:00 - ~w~%" (second turno) (nth (position turno TURNOS) cronograma-dia))
     )
 ))
 
 ; Imprime o cronograma de todos os dias
-(defun imprimir-cronograma(disponivel-dia-horario prefere-dia-horario) (let* ()
+(defun imprimir-cronograma(cronograma-semana) 
     (dolist (dia DIAS)
-        (imprimir-horarios dia disponivel-dia-horario prefere-dia-horario)
+        (imprimir-horarios dia (nth (position dia DIAS) cronograma-semana))
     )
-))
+)
 
 (defun main()
     (let* ((running T)(opcao 0))
@@ -228,14 +228,14 @@
                 (setf opcao (read))
             ))
             ((eq opcao 1) (let* ()
-                (imprimir-cronograma disponivel-dia-horario prefere-dia-horario)
+                (imprimir-cronograma (montar-cronograma-semana disponivel-dia-horario prefere-dia-horario))
                 (setf opcao 0) ; no final do bloco retorna para o menu de escolha
             ))
             ((eq opcao 2) (let* ((dia))
                 (format  T "Dias: ~w~%" DIAS)
                 (format  T "Digite o dia: ")
                 (setf dia (read))
-                (imprimir-horarios dia disponivel-dia-horario prefere-dia-horario)
+                (imprimir-horarios dia (montar-cronograma-dia dia disponivel-dia-horario prefere-dia-horario))
                 (setf opcao 0) ; no final do bloco retorna para o menu de escolha
             ))
             ((eq opcao 3) (setf running nil))
