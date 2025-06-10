@@ -196,53 +196,49 @@
         (reverse cronograma)))
 
 ; Imprime o cronograma dos horarios do dia fornecido
-(defun imprimir-horarios(dia cronograma-dia) (let* ()
-    (format  T "Dia: ~w~%" dia)
-    (dolist (turno TURNOS)
-        (format  T "  ~w:00 - ~w~%" (second turno) (nth (position turno TURNOS) cronograma-dia))
-    )
-))
+(defun imprimir-horarios (dia cronograma-dia) 
+    (progn
+        (format  T "Dia: ~w~%" dia)
+        (dolist (turno TURNOS)
+            (format  T "  ~w:00 - ~w~%" (second turno) (nth (position turno TURNOS) cronograma-dia)))))
 
 ; Imprime o cronograma de todos os dias
 (defun imprimir-cronograma(cronograma-semana) 
     (dolist (dia DIAS)
-        (imprimir-horarios dia (nth (position dia DIAS) cronograma-semana))
-    )
-)
+        (imprimir-horarios dia (nth (position dia DIAS) cronograma-semana))))
 
 (defun main()
-    (let* ((running T)(opcao 0))
+    (let* ((running T) (opcao 0))
         (setf disponivel-temp (append DISPONIVEL (process-a-partir-ate DISPONIVEL-A-PARTIR DISPONIVEL-ATE)))
         (setf disponivel-dia-horario (process-relac disponivel-temp))
         (setf prefere-temp (append PREFERE (process-a-partir-ate PREFERE-A-PARTIR PREFERE-ATE)))
         (setf prefere-dia-horario (process-relac prefere-temp))
 
         (loop while running do (cond
-            ((eq opcao 0) (let* ()
-                (format  T "---- Sistema de Organizacao de Escalas com Restricoes ----~%")
+            ((eq opcao 0) (progn
+                (format  T "~%---- Sistema de Organizacao de Escalas com Restricoes ----~%")
                 (format  T "Opcoes:~%")
                 (format  T "1. Montar cronograma da semana~%")
                 (format  T "2. Montar cronograma por dia~%")
                 (format  T "3. Sair~%")
                 (format  T "opcao> ")
-                (setf opcao (read))
-            ))
-            ((eq opcao 1) (let* ()
+                (setf opcao (read))))
+
+            ((eq opcao 1) (progn
                 (imprimir-cronograma (montar-cronograma-semana disponivel-dia-horario prefere-dia-horario))
-                (setf opcao 0) ; no final do bloco retorna para o menu de escolha
-            ))
+                (setf opcao 0))) ; No final do bloco retorna para o menu de escolha
+
             ((eq opcao 2) (let* ((dia))
                 (format  T "Dias: ~w~%" DIAS)
                 (format  T "Digite o dia: ")
                 (setf dia (read))
-                (imprimir-horarios dia (montar-cronograma-dia dia disponivel-dia-horario prefere-dia-horario))
-                (setf opcao 0) ; no final do bloco retorna para o menu de escolha
-            ))
+                (if (member dia DIAS) 
+                    (imprimir-horarios dia (montar-cronograma-dia dia disponivel-dia-horario prefere-dia-horario))
+                    (format  T "Opcao invalida! Tente novamente...~%"))
+                (setf opcao 0)))
+
             ((eq opcao 3) (setf running nil))
-            ((> opcao 3) (let* ()
+
+            ((t (progn
                 (format  T "Opcao invalida! Tente novamente...~%")
-                (setf opcao 0)
-            ))
-        ))
-    )
-)
+                (setf opcao 0))))))))
