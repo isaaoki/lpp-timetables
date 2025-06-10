@@ -39,7 +39,7 @@ disponivel_a_partir(isabela, qua).
 disponivel_a_partir(isabela, 13).
 disponivel_a_partir(gabriela, seg).
 disponivel_a_partir(jessica, 18).
-disponivel_a_partir(jessica ter).
+disponivel_a_partir(jessica, ter).
 disponivel_a_partir(carlos, seg).
 
 %% disponivel_ate(+Pessoa:atom, +Valor:int|atom) 
@@ -143,7 +143,7 @@ prefere(lucas, 18).
 prefere(isabela, qui).
 prefere(gabriela, 11).
 prefere(jessica, 18).
-prefere(jessica 20).
+prefere(jessica, 20).
 prefere(carlos, 11).
 
 %% prefere(+Pessoa:atom, +Horario:int)
