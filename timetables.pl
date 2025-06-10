@@ -12,10 +12,8 @@ Autores:
 %% dias_semana(-Dias:list)
 dias_semana([seg, ter, qua, qui, sex]).
 
-%% horario(-Horario:int) 
-horario(8).
-horario(10).
-horario(14).
+%% horario(-Horarios:int) 
+horarios([8, 10, 14]).
 
 %% turno(+Quantidade:int, +Horario:int)
 % Representa um turno com a quantidade de pessoas necessaria e horario
@@ -33,7 +31,6 @@ disponivel_a_partir(tinos, 10).
 disponivel_a_partir(joca, seg).
 disponivel_a_partir(michele, ter).
 disponivel_a_partir(michele, 8).
-disponivel_a_partir(isa, qui).
 
 %% disponivel_ate(+Pessoa:atom, +Valor:int|atom) 
 % Define ate que dia/horario a pessoa esta disponivel
@@ -56,25 +53,26 @@ disponivel(vanessa, qui).
 disponivel(mirela, qui).
 disponivel(mirela, 8).
 
-
 %% disponivel(+Pessoa:atom, +Horario:int)
 % Verdadeiro se pessoa esta disponivel entre intervalo de horarios
 disponivel(Pessoa, Horario) :-
-	horario(Horario),
+	horarios(Horarios),
 	disponivel_a_partir(Pessoa, HorarioInicio),
-	horario(HorarioInicio),
 	disponivel_ate(Pessoa, HorarioFim),
-	horario(HorarioFim),
-	Horario > HorarioInicio, 
-	Horario < HorarioFim.
+	member(HorarioInicio, Horarios),
+	member(HorarioFim, Horarios),
+	member(Horario, Horarios),
+	Horario >= HorarioInicio, 
+	Horario =< HorarioFim.
 
 %% disponivel(+Pessoa:atom, +Horario:int)
 % Verdadeiro se uma pessoa estiver disponivel a partir de um horario (sem horario fim)
 disponivel(Pessoa, Horario) :-
-    \+ disponivel_ate(Pessoa, horario(_)),
-    disponivel_a_partir(Pessoa, HorarioInicio),
-    horario(HorarioInicio),
-    horario(Horario),
+	horarios(Horarios),
+	disponivel_a_partir(Pessoa, HorarioInicio),
+    \+ (disponivel_ate(Pessoa, HorarioLimite), member(HorarioLimite, Horarios)),
+    member(HorarioInicio, Horarios),
+	member(Horario, Horarios),
     Horario >= HorarioInicio.
 
 %% disponivel(+Pessoa:atom, +Dia:atom)
@@ -103,8 +101,9 @@ disponivel(Pessoa, Dia) :-
 % Verdadeiro se pessoa esta disponivel em um dia E horario
 disponivel_dia_horario(Pessoa, Dia, Horario) :-
 	dias_semana(Dias),
+	horarios(Horarios),
 	member(Dia, Dias),
-	horario(Horario),
+	member(Horario, Horarios),
 	disponivel(Pessoa, Dia),
 	disponivel(Pessoa, Horario).
 
@@ -129,31 +128,33 @@ prefere(tinos, seg).
 %% prefere(+Pessoa:atom, +Horario:int)
 % Verdadeiro se pessoa prefere um intervalo de horarios
 prefere(Pessoa, Horario) :-
-	horario(Horario),
+	horarios(Horarios),
 	prefere_a_partir(Pessoa, HorarioInicio),
-	horario(HorarioInicio),
 	prefere_ate(Pessoa, HorarioFim),
-	horario(HorarioFim),
-	Horario > HorarioInicio, 
-	Horario < HorarioFim.
+	member(HorarioInicio, Horarios),
+	member(HorarioFim, Horarios),
+	member(Horario, Horarios),
+	Horario >= HorarioInicio, 
+	Horario =< HorarioFim.
 
 %% prefere(+Pessoa:atom, +Horario:int)
 % Verdadeiro se uma pessoa preferir a partir de um horario (sem horario fim)
 prefere(Pessoa, Horario) :-
-    \+ prefere_ate(Pessoa, horario(_)),
-    prefere_a_partir(Pessoa, HorarioInicio),
-    horario(HorarioInicio),
-    horario(Horario),
+    horarios(Horarios),
+	prefere_a_partir(Pessoa, HorarioInicio),
+    \+ (prefere_ate(Pessoa, HorarioLimite), member(HorarioLimite, Horarios)),
+    member(HorarioInicio, Horarios),
+	member(Horario, Horarios),
     Horario >= HorarioInicio.
 
 %% prefere(+Pessoa:atom, +Dia:atom)
 % Verdadeiro se pessoa prefere um intervalo de dias
 prefere(Pessoa, Dia) :-
 	dias_semana(Dias), 
-	nth1(N, Dias, Dia),
 	prefere_a_partir(Pessoa, DiaInicio),
-	nth1(NInicio, Dias, DiaInicio),
 	prefere_ate(Pessoa, DiaFim),
+	nth1(N, Dias, Dia),
+	nth1(NInicio, Dias, DiaInicio),
 	nth1(NFim, Dias, DiaFim),
 	N >= NInicio,
 	N =< NFim.
@@ -172,8 +173,9 @@ prefere(Pessoa, Dia) :-
 % Verdadeiro se pessoa prefere um dia E horario
 prefere_dia_horario(Pessoa, Dia, Horario) :-
 	dias_semana(Dias),
+	horarios(Horarios),
 	member(Dia, Dias),
-	horario(Horario),
+	member(Horario, Horarios),
 	prefere(Pessoa, Dia),
 	prefere(Pessoa, Horario).
 
@@ -201,7 +203,7 @@ cronograma_semana([Dia | T1], [CronogramaDia | T2]) :-
 %% cronograma_dia(+Dia:atom, -Cronograma:list)
 % Gera o cronograma de um dia, passando por cada horario
 cronograma_dia(Dia, Cronograma) :-
-	findall(Horario, horario(Horario), Horarios),
+	horarios(Horarios),
 	cronograma_horarios(Dia, Horarios, Cronograma).
 
 %% cronograma_horarios(+Dia:atom, +Horarios:list, -Cronograma:list)
@@ -306,7 +308,7 @@ imprimir_todos_cronogramas([Cronograma | T], N) :-
 imprimir_cronograma([], []).
 imprimir_cronograma([Dia | T1], [CronogramaDia | T2]) :-
 	format('~nDia: ~w', [Dia]),
-	findall(Horario, horario(Horario), Horarios),
+	horarios(Horarios),
 	imprimir_horarios(Horarios, CronogramaDia),
 	imprimir_cronograma(T1, T2).
 
