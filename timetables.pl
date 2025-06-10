@@ -33,13 +33,13 @@ disponivel_a_partir(tinos, 10).
 disponivel_a_partir(joca, seg).
 disponivel_a_partir(michele, ter).
 disponivel_a_partir(michele, 8).
+disponivel_a_partir(isa, qui).
 
 %% disponivel_ate(+Pessoa:atom, +Valor:int|atom) 
 % Define ate que dia/horario a pessoa esta disponivel
 disponivel_ate(tinos, 14).
 disponivel_ate(joca, qua).
 disponivel_ate(michele, qua).
-disponivel_ate(isa, 10).
 
 %% disponivel(+Pessoa:atom, +Valor:int|atom) 
 % Define explicitamente o dia/horario que a pessoa esta disponivel
@@ -55,6 +55,7 @@ disponivel(vanessa, ter).
 disponivel(vanessa, qui).
 disponivel(mirela, qui).
 disponivel(mirela, 8).
+
 
 %% disponivel(+Pessoa:atom, +Horario:int)
 % Verdadeiro se pessoa esta disponivel entre intervalo de horarios
@@ -79,14 +80,24 @@ disponivel(Pessoa, Horario) :-
 %% disponivel(+Pessoa:atom, +Dia:atom)
 % Verdadeiro se pessoa esta disponivel entre intervalo de dias
 disponivel(Pessoa, Dia) :-
-	dias_semana(Dias), 
-	nth1(N, Dias, Dia),
+	dias_semana(Dias),
 	disponivel_a_partir(Pessoa, DiaInicio),
-	nth1(NInicio, Dias, DiaInicio),
 	disponivel_ate(Pessoa, DiaFim),
+	nth1(N, Dias, Dia),
+	nth1(NInicio, Dias, DiaInicio),
 	nth1(NFim, Dias, DiaFim),
 	N >= NInicio,
 	N =< NFim.
+
+%% disponivel(+Pessoa:atom, +Dia:atom)
+% Verdadeiro se uma pessoa estiver disponivel a partir de um dia (sem dia fim)
+disponivel(Pessoa, Dia) :-
+	dias_semana(Dias),
+	disponivel_a_partir(Pessoa, DiaInicio),
+	\+ (disponivel_ate(Pessoa, DiaLimite), member(DiaLimite, Dias)),
+	nth1(NInicio, Dias, DiaInicio),
+	nth1(N, Dias, Dia),
+	N >= NInicio.
 
 %% disponivel_dia_horario(+Pessoa:atom, +Dia:atom, +Horario:int)
 % Verdadeiro se pessoa esta disponivel em um dia E horario
@@ -146,6 +157,16 @@ prefere(Pessoa, Dia) :-
 	nth1(NFim, Dias, DiaFim),
 	N >= NInicio,
 	N =< NFim.
+
+%% prefere(+Pessoa:atom, +Dia:atom)
+% Verdadeiro se uma pessoa prefere a partir de um dia (sem dia fim)
+prefere(Pessoa, Dia) :-
+	dias_semana(Dias),
+	prefere_a_partir(Pessoa, DiaInicio),
+	\+ (prefere_ate(Pessoa, DiaLimite), member(DiaLimite, Dias)),
+	nth1(NInicio, Dias, DiaInicio),
+	nth1(N, Dias, Dia),
+	N >= NInicio.
 
 %% prefere_dia_horario(+Pessoa:atom, +Dia:atom, +Horario:int)
 % Verdadeiro se pessoa prefere um dia E horario
