@@ -3,59 +3,92 @@
 ))
 
 (defconstant HORARIOS '(
-    8 10 14
+    11 13 18 20
 ))
 
 (defconstant TURNOS '(
-    (1 8)
-    (2 10)
-    (1 14)
+    (2 11)
+    (3 13)
+    (3 18)
+    (2 20)
 ))
 
 (defconstant DISPONIVEL '(
-    (tinos seg)
-    (tinos qua)
-    (tinos sex)
-    (bara qui)
-    (bara 14)
-    (joca 10)
-    (vanessa 8)
-    (vanessa 10)
-    (vanessa ter)
-    (vanessa qui)
-    (mirela qui)
-    (mirela 8)
+    (amanda ter)
+    (amanda qua)
+    (amanda qui)
+    (amanda 11)
+    (amanda 13)
+    (jose 11)
+    (jose 13)
+    (tiago seg)
+    (tiago sex)
+    (isabela seg)
+    (gabriela 11)
+    (beatriz 11)
+    (carlos 11)
+    (carlos 18)
 ))
 
 (defconstant DISPONIVEL-A-PARTIR '(
-    (tinos 10)
-    (joca seg)
-    (michele ter)
-    (michele 8)
+   (jose ter)
+   (tiago 11)
+   (lucas seg)
+   (lucas 13)
+   (isabela qua)
+   (isabela 13)
+   (gabriela seg)
+   (beatriz 18)
+   (beatriz ter)
+   (carlos seg)
 ))
 
 (defconstant DISPONIVEL-ATE '(
-    (tinos 14)
-    (joca qua)
-    (michele qua)
+    (jose sex)
+    (tiago 20)
+    (lucas qui)
+    (isabela 20)
+    (beatriz 20)
+    (beatriz qui)
+    (carlos sex)
 ))
 
 (defconstant PREFERE '(
-    (michele ter)
-    (michele 10)
-    (tinos seg)
+    (amanda qua)
+    (amanda qui)
+    (amanda 13)
+    (jose 11)
+    (tiago seg)
+    (lucas 18)
+    (isabela qui)
+    (gabriela 11)
+    (beatriz 18)
+    (beatriz 20)
+    (carlos 11)
 ))
 
 (defconstant PREFERE-A-PARTIR '(
-    (tinos 10)
+    (jose qua)
+    (tiago 18)
+    (lucas ter)
+    (isabela 18)
+    (gabriela seg)
+    (beatriz ter)
+    (carlos seg)
 ))
 
 (defconstant PREFERE-ATE '(
-    (tinos 14)
+    (tiago 20)
+    (lucas qui)
+    (gabriela qua)
+    (beatriz qua)
+    (carlos qua)
 ))
 
 (defconstant DETESTA '(
-    (michele joca)
+    (amanda beatriz)
+    (tiago amanda)
+    (carlos jose)
 ))
 
 ; Retorna T se item pertence a lista
@@ -130,7 +163,7 @@
             (dolist (relacB lista)
                 (let* ((nomeA (car relacA)) (nomeB (car relacB)) (infoA (second relacA)) (infoB (second relacB)))
                 ; Checa se relacA e relacB tratam-se da mesma pessoa, se relacA refefere-se a um dia e se relacB a um horario
-                    (if (and (eql nomeA nomeB) (typep infoA (type-of (car DIAS))) (typep infoB (type-of (car HORARIOS))))
+                    (if (and (eql nomeA nomeB) (typep infoA (type-of (car DIAS))) (integerp infoB))
                         (push (list nomeA infoA infoB) lista-saida)))))
         lista-saida))
 
