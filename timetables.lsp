@@ -3,59 +3,80 @@
 ))
 
 (defconstant HORARIOS '(
-    8 10 14
+    11 13 18 20
 ))
 
 (defconstant TURNOS '(
-    (1 8)
-    (2 10)
-    (1 14)
+    (2 11)
+    (3 13)
+    (3 18)
+    (2 20)
 ))
 
 (defconstant DISPONIVEL '(
-    (tinos seg)
-    (tinos qua)
-    (tinos sex)
-    (bara qui)
-    (bara 14)
-    (joca 10)
-    (vanessa 8)
-    (vanessa 10)
-    (vanessa ter)
-    (vanessa qui)
-    (mirela qui)
-    (mirela 8)
+    (amanda ter)
+    (amanda qua)
+    (amanda qui)
+    (amanda 11)
+    (amanda 13)
+    (guilherme seg)
+    (guilherme sex)
+    (isabela seg)
+    (gabriela 11)
+    (jessica 11)
 ))
 
 (defconstant DISPONIVEL-A-PARTIR '(
-    (tinos 10)
-    (joca seg)
-    (michele ter)
-    (michele 8)
+   (guilherme 11)
+   (lucas seg)
+   (lucas 13)
+   (isabela qua)
+   (isabela 13)
+   (gabriela seg)
+   (jessica 18)
+   (jessica ter)
 ))
 
 (defconstant DISPONIVEL-ATE '(
-    (tinos 14)
-    (joca qua)
-    (michele qua)
+    (guilherme 20)
+    (lucas qui)
+    (isabela 20)
+    (jessica 20)
+    (jessica qua)
 ))
 
 (defconstant PREFERE '(
-    (michele ter)
-    (michele 10)
-    (tinos seg)
+    (amanda qua)
+    (amanda qui)
+    (amanda 13)
+    (jose 11)
+    (guilherme seg)
+    (lucas 18)
+    (isabela qui)
+    (gabriela 11)
+    (jessica 18)
+    (jessica 20)
 ))
 
 (defconstant PREFERE-A-PARTIR '(
-    (tinos 10)
+    (jose qua)
+    (guilherme 18)
+    (lucas ter)
+    (isabela 18)
+    (gabriela seg)
+    (jessica ter)
 ))
 
 (defconstant PREFERE-ATE '(
-    (tinos 14)
+    (guilherme 20)
+    (lucas qui)
+    (gabriela qua)
+    (jessica qua)
 ))
 
 (defconstant DETESTA '(
-    (michele joca)
+    (amanda jessica)
+    (guilherme amanda)
 ))
 
 ; Retorna T se item pertence a lista
@@ -84,7 +105,7 @@
 (defun gerar-lista-a-partir-ate (nomeA nomeB infoA infoB)  
     (let* ((lista-saida ())) 
         ; Checa se trata da mesma pessoa e se ambas referem-se ao mesmo tipo de dado
-        (if (and (eql nomeA nomeB) (eql (type-of infoA) (type-of infoB)))
+        (if (and (eql nomeA nomeB) (or (and (integerp infoA) (integerp infoB)) (and (symbolp infoA) (symbolp infoB))))
             (if (pertencep infoA DIAS) 
                 (dolist (dia DIAS) ; Caso seja um dia, percorre pela lista DIAS
                     (if (and (>= (position dia DIAS) (position infoA DIAS)) (<= (position dia DIAS) (position infoB DIAS))) 
@@ -99,6 +120,7 @@
 ; DISPONIVEL-A-PARTIR (tinos 10) -> ((TINOS 10) (TINOS 14))
 (defun gerar-lista-a-partir (nomeA infoA) 
     (let* ((lista-saida ()))
+        ; (if (eq nomeA 'isabela) (format T "Oi ~w" infoA))
         (if (pertencep infoA DIAS) 
             (dolist (dia DIAS) ; Caso seja um dia, percorre pela lista DIAS
                 (if (>= (position dia DIAS) (position infoA DIAS)) (push (list nomeA dia) lista-saida)))
@@ -119,6 +141,7 @@
                             ; Se a funcao retornou uma lista nao vazia, a mesma foi capaz de achar uma relacao ate compativel com relacA
                             (setf lista-saida (append lista lista-saida))
                             (setf sem-relac-ate nil))))
+                
                 ; Caso esteja definida apenas a relacao a_partir
                 (if sem-relac-ate (setf lista-saida (append (gerar-lista-a-partir nomeA infoA) lista-saida)))))
         lista-saida))
@@ -130,7 +153,7 @@
             (dolist (relacB lista)
                 (let* ((nomeA (car relacA)) (nomeB (car relacB)) (infoA (second relacA)) (infoB (second relacB)))
                 ; Checa se relacA e relacB tratam-se da mesma pessoa, se relacA refefere-se a um dia e se relacB a um horario
-                    (if (and (eql nomeA nomeB) (typep infoA (type-of (car DIAS))) (typep infoB (type-of (car HORARIOS))))
+                    (if (and (eql nomeA nomeB) (symbolp infoA) (integerp infoB))
                         (push (list nomeA infoA infoB) lista-saida)))))
         lista-saida))
 

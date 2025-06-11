@@ -13,13 +13,14 @@ Autores:
 dias_semana([seg, ter, qua, qui, sex]).
 
 %% horario(-Horarios:int) 
-horarios([8, 10, 14]).
+horarios([11, 13, 18, 20]).
 
 %% turno(+Quantidade:int, +Horario:int)
 % Representa um turno com a quantidade de pessoas necessaria e horario
-turno(1, 8).
-turno(2, 10).
-turno(1, 14).
+turno(2, 11).
+turno(3, 13).
+turno(3, 18).
+turno(2, 20).
 
 % ---------------------------------------------
 % FATOS E REGRAS DA DISPONIBILIDADE DAS PESSOAS
@@ -27,31 +28,35 @@ turno(1, 14).
 
 %% disponivel_a_partir(+Pessoa:atom, +Valor:int|atom)
 % Define a partir de que dia/horario a pessoa esta disponivel
-disponivel_a_partir(tinos, 10).
-disponivel_a_partir(joca, seg).
-disponivel_a_partir(michele, ter).
-disponivel_a_partir(michele, 8).
+disponivel_a_partir(guilherme, 11).
+disponivel_a_partir(lucas, seg).
+disponivel_a_partir(lucas, 13).
+disponivel_a_partir(isabela, qua).
+disponivel_a_partir(isabela, 13).
+disponivel_a_partir(gabriela, seg).
+disponivel_a_partir(jessica, 18).
+disponivel_a_partir(jessica, ter).
 
 %% disponivel_ate(+Pessoa:atom, +Valor:int|atom) 
 % Define ate que dia/horario a pessoa esta disponivel
-disponivel_ate(tinos, 14).
-disponivel_ate(joca, qua).
-disponivel_ate(michele, qua).
+disponivel_ate(guilherme, 20).
+disponivel_ate(lucas, qui).
+disponivel_ate(isabela, 20).
+disponivel_ate(jessica, 20).
+disponivel_ate(jessica, qua).
 
 %% disponivel(+Pessoa:atom, +Valor:int|atom) 
 % Define explicitamente o dia/horario que a pessoa esta disponivel
-disponivel(tinos, seg).
-disponivel(tinos, qua).
-disponivel(tinos, sex).
-disponivel(bara, qui).
-disponivel(bara, 14).
-disponivel(joca, 10).
-disponivel(vanessa, 8).
-disponivel(vanessa, 10).
-disponivel(vanessa, ter).
-disponivel(vanessa, qui).
-disponivel(mirela, qui).
-disponivel(mirela, 8).
+disponivel(amanda, ter).
+disponivel(amanda, qua).
+disponivel(amanda, qui).
+disponivel(amanda, 11).
+disponivel(amanda, 13).
+disponivel(guilherme, seg).
+disponivel(guilherme, sex).
+disponivel(isabela, seg).
+disponivel(gabriela, 11).
+disponivel(jessica, 11).
 
 %% disponivel(+Pessoa:atom, +Horario:int)
 % Verdadeiro se pessoa esta disponivel entre intervalo de horarios
@@ -113,17 +118,30 @@ disponivel_dia_horario(Pessoa, Dia, Horario) :-
 
 %% prefere_a_partir(+Pessoa:atom, +Valor:int|atom) 
 % Define a partir de que dia/horario a pessoa prefere
-prefere_a_partir(tinos, 10).
+prefere_a_partir(guilherme, 18).
+prefere_a_partir(lucas, ter).
+prefere_a_partir(isabela, 18).
+prefere_a_partir(gabriela, seg).
+prefere_a_partir(jessica, ter).
 
 %% prefere_ate(+Pessoa:atom, +Valor:int|atom)
 % Define ate que dia/horario a pessoa prefere
-prefere_ate(tinos, 14).
+prefere_ate(guilherme, 20).
+prefere_ate(lucas, qui).
+prefere_ate(gabriela, qua).
+prefere_ate(jessica, qua).
 
 %% prefere(+Pessoa:atom, +Valor:int|atom) 
 % Define explicitamente o dia/horario que a pessoa prefere
-prefere(michele, ter).
-prefere(michele, 10).
-prefere(tinos, seg).
+prefere(amanda, qua).
+prefere(amanda, qui).
+prefere(amanda, 13).
+prefere(guilherme, seg).
+prefere(lucas, 18).
+prefere(isabela, qui).
+prefere(gabriela, 11).
+prefere(jessica, 18).
+prefere(jessica, 20).
 
 %% prefere(+Pessoa:atom, +Horario:int)
 % Verdadeiro se pessoa prefere um intervalo de horarios
@@ -184,7 +202,8 @@ prefere_dia_horario(Pessoa, Dia, Horario) :-
 % -------------------------------------
 
 %% detesta(+Pessoa1:atom, +Pessoa2:atom)
-detesta(michele, joca).
+detesta(amanda, jessica).
+detesta(guilherme, amanda).
 
 % -----------------
 % MONTAR CRONOGRAMA
