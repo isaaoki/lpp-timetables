@@ -31,7 +31,6 @@ turno(2, 20).
 
 %% disponivel_a_partir(+Pessoa:atom, +Valor:int|atom)
 % Define a partir de que dia/horario a pessoa esta disponivel
-disponivel_a_partir(jose, ter).
 disponivel_a_partir(guilherme, 11).
 disponivel_a_partir(lucas, seg).
 disponivel_a_partir(lucas, 13).
@@ -40,17 +39,14 @@ disponivel_a_partir(isabela, 13).
 disponivel_a_partir(gabriela, seg).
 disponivel_a_partir(jessica, 18).
 disponivel_a_partir(jessica, ter).
-disponivel_a_partir(carlos, seg).
 
 %% disponivel_ate(+Pessoa:atom, +Valor:int|atom) 
 % Define ate que dia/horario a pessoa esta disponivel
-disponivel_ate(jose, sex).
 disponivel_ate(guilherme, 20).
 disponivel_ate(lucas, qui).
 disponivel_ate(isabela, 20).
 disponivel_ate(jessica, 20).
 disponivel_ate(jessica, qui).
-disponivel_ate(carlos, sex).
 
 %% disponivel(+Pessoa:atom, +Valor:int|atom) 
 % Define explicitamente o dia/horario que a pessoa esta disponivel
@@ -59,15 +55,11 @@ disponivel(amanda, qua).
 disponivel(amanda, qui).
 disponivel(amanda, 11).
 disponivel(amanda, 13).
-disponivel(jose, 11).
-disponivel(jose, 13).
 disponivel(guilherme, seg).
 disponivel(guilherme, sex).
 disponivel(isabela, seg).
 disponivel(gabriela, 11).
 disponivel(jessica, 11).
-disponivel(carlos, 11).
-disponivel(carlos, 18).
 
 %% disponivel(+Pessoa:atom, +Horario:int)
 % Verdadeiro se pessoa esta disponivel entre intervalo de horarios
@@ -116,13 +108,11 @@ disponivel_dia_horario(Pessoa, Dia, Horario) :-
 
 %% prefere_a_partir(+Pessoa:atom, +Valor:int|atom) 
 % Define a partir de que dia/horario a pessoa prefere
-prefere_a_partir(jose, qua).
 prefere_a_partir(guilherme, 18).
 prefere_a_partir(lucas, ter).
 prefere_a_partir(isabela, 18).
 prefere_a_partir(gabriela, seg).
 prefere_a_partir(jessica, ter).
-prefere_a_partir(carlos, seg).
 
 %% prefere_ate(+Pessoa:atom, +Valor:int|atom)
 % Define ate que dia/horario a pessoa prefere
@@ -130,21 +120,18 @@ prefere_ate(guilherme, 20).
 prefere_ate(lucas, qui).
 prefere_ate(gabriela, qua).
 prefere_ate(jessica, qua).
-prefere_ate(carlos, qua).
 
 %% prefere(+Pessoa:atom, +Valor:int|atom) 
 % Define explicitamente o dia/horario que a pessoa prefere
 prefere(amanda, qua).
 prefere(amanda, qui).
 prefere(amanda, 13).
-prefere(jose, 11).
 prefere(guilherme, seg).
 prefere(lucas, 18).
 prefere(isabela, qui).
 prefere(gabriela, 11).
 prefere(jessica, 18).
 prefere(jessica, 20).
-prefere(carlos, 11).
 
 %% prefere(+Pessoa:atom, +Horario:int)
 % Verdadeiro se pessoa prefere um intervalo de horarios
@@ -194,7 +181,6 @@ prefere_dia_horario(Pessoa, Dia, Horario) :-
 %% detesta(+Pessoa1:atom, +Pessoa2:atom)
 detesta(amanda, jessica).
 detesta(guilherme, amanda).
-detesta(carlos, jose).
 
 % -----------------
 % MONTAR CRONOGRAMA

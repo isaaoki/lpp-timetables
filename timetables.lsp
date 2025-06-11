@@ -19,19 +19,14 @@
     (amanda qui)
     (amanda 11)
     (amanda 13)
-    (jose 11)
-    (jose 13)
     (guilherme seg)
     (guilherme sex)
     (isabela seg)
     (gabriela 11)
     (jessica 11)
-    (carlos 11)
-    (carlos 18)
 ))
 
 (defconstant DISPONIVEL-A-PARTIR '(
-   (jose ter)
    (guilherme 11)
    (lucas seg)
    (lucas 13)
@@ -40,17 +35,14 @@
    (gabriela seg)
    (jessica 18)
    (jessica ter)
-   (carlos seg)
 ))
 
 (defconstant DISPONIVEL-ATE '(
-    (jose sex)
     (guilherme 20)
     (lucas qui)
     (isabela 20)
     (jessica 20)
     (jessica qui)
-    (carlos sex)
 ))
 
 (defconstant PREFERE '(
@@ -64,7 +56,6 @@
     (gabriela 11)
     (jessica 18)
     (jessica 20)
-    (carlos 11)
 ))
 
 (defconstant PREFERE-A-PARTIR '(
@@ -74,7 +65,6 @@
     (isabela 18)
     (gabriela seg)
     (jessica ter)
-    (carlos seg)
 ))
 
 (defconstant PREFERE-ATE '(
@@ -82,13 +72,11 @@
     (lucas qui)
     (gabriela qua)
     (jessica qua)
-    (carlos qua)
 ))
 
 (defconstant DETESTA '(
     (amanda jessica)
     (guilherme amanda)
-    (carlos jose)
 ))
 
 ; Retorna T se item pertence a lista
