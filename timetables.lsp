@@ -1,3 +1,14 @@
+#| Sistema de Organizacao de Escalas com Restricoes
+
+Este projeto organiza turnos em um cronograma, considerando diferentes tipos de restricao 
+como a disponibilidade, a preferencia e as compatibilidades entre as pessoas envolvidas. 
+
+Autores:
+- Isabela
+- Lucas
+
+|#
+
 (defconstant DIAS '(
     seg ter qua qui sex
 ))
@@ -87,7 +98,7 @@
     )
 )
 
-; Gera combinacoes de uma lista a partir de n
+; Gera todas as combinacoes de uma lista com grupos de tamanho n
 (defun combinacoes (n lista)
     (cond
         ((< n 0) nil)
@@ -101,7 +112,6 @@
 )
 
 ; Gera lista com pares (nome dia/horario) para informacoes com inicio e fim
-; DISPONIVEL-A-PARTIR (tinos seg) e DISPONIVEL-ATE (tinos qua) -> ((TINOS SEG) (TINOS TER) (TINOS QUA))
 (defun gerar-lista-a-partir-ate (nomeA nomeB infoA infoB)  
     (let* ((lista-saida ())) 
         ; Checa se trata da mesma pessoa e se ambas referem-se ao mesmo tipo de dado
@@ -117,10 +127,8 @@
         lista-saida))
 
 ; Gera lista com pares (nome dia/horario) para informacoes com inicio apenas
-; DISPONIVEL-A-PARTIR (tinos 10) -> ((TINOS 10) (TINOS 14))
 (defun gerar-lista-a-partir (nomeA infoA) 
     (let* ((lista-saida ()))
-        ; (if (eq nomeA 'isabela) (format T "Oi ~w" infoA))
         (if (pertencep infoA DIAS) 
             (dolist (dia DIAS) ; Caso seja um dia, percorre pela lista DIAS
                 (if (>= (position dia DIAS) (position infoA DIAS)) (push (list nomeA dia) lista-saida)))
@@ -129,11 +137,11 @@
                 (if (>= (position horario HORARIOS) (position infoA HORARIOS)) (push (list nomeA horario) lista-saida))))
         lista-saida))
 
-; Rece listas A-PARTIR e ATE e processa listas para gerar intervalos
+; Recebe as listas A-PARTIR e ATE e as processa em uma lista com pares intermediarios
 (defun process-a-partir-ate(a-partir ate) 
     (let* ((lista-saida ()))
         (dolist (relacA a-partir)
-            ; Assumimos, no inicio, que nao ha uma relacao ate compativel
+            ; Assumimos, no inicio, que nao ha uma relacao ate compativel com relacA
             (let* ((sem-relac-ate T) (nomeA (car relacA)) (infoA (second relacA)))
                 (dolist (relacB ate) 
                     (let* ((nomeB (car relacB)) (infoB (second relacB)) (lista (gerar-lista-a-partir-ate nomeA nomeB infoA infoB)))
@@ -142,11 +150,11 @@
                             (setf lista-saida (append lista lista-saida))
                             (setf sem-relac-ate nil))))
                 
-                ; Caso esteja definida apenas a relacao a_partir
+                ; Caso esteja definida apenas a relacao a-partir
                 (if sem-relac-ate (setf lista-saida (append (gerar-lista-a-partir nomeA infoA) lista-saida)))))
         lista-saida))
 
-; Gera lista com pares (nome dia horario) de acordo com a lista de entrada
+; Gera uma lista ternaria (nome dia horario) de acordo com a lista de entrada
 (defun process-relac(lista) 
     (let* ((lista-saida ())) 
         (dolist (relacA lista)
@@ -158,30 +166,29 @@
         lista-saida))
 
 
-; Retorna lista com combinacoes validas, retirando combinacoes com pessoas incompativeis
+; Retorna lista com combinacoes validas, retirando combinacoes com pessoas que se detestam
 (defun checa-compatibilidade (lista-combinacoes) 
     (let* ((combinacoes-validas ()))
         (dolist (combinacao lista-combinacoes)
-            ; Para cada combinacao, verifica se é compativel e ignora o indice de preferencia 
+            ; Para cada combinacao, verifica se eh compativel e ignora o indice de preferencia 
             (let* ((compativel T) (pessoas (cdr combinacao))) 
                 ; Compara cada pessoa com o restante das pessoas
                 (dolist (pessoaA pessoas)
                     (dolist (pessoaB (cdr (member pessoaA pessoas)))
                         (if (or (pertencep (list pessoaA pessoaB) DETESTA) (pertencep (list pessoaB pessoaA) DETESTA)) 
                             (setf compativel nil))))
-                ; Se é uma relacao compativel, adiciona as combinacoes validas
+                ; Se eh uma relacao compativel, adiciona as combinacoes validas
                 (if compativel (push combinacao combinacoes-validas))))
         combinacoes-validas))
 
 ; Retorna as possiveis combinacoes de um horario, adicionando index indicando a preferencia e processando relacoes detesta
-; ((0 (TINOS SEG 10) (JOCA SEG 10)) (1 (MIRELA SEG 10) (JOCA SEG 10)))
 (defun montar-combinacoes-horario (turno cronograma-horario prefere-dia-horario) 
     (let* ((lista-saida ()) (lista-combinacoes (combinacoes (car turno) cronograma-horario)))
         (dolist (combinacao lista-combinacoes) 
             ; Para uma combinacao, define a quant-prefere como 0
             (let* ((quant-prefere 0) (item-saida ()))
                 (dolist (pessoa combinacao)
-                    ; Se pessoa possui preferencia, incrementa o indice quant_prefere e adiciona no item-saida
+                    ; Se pessoa possui preferencia, incrementa o indice quant-prefere e adiciona no item-saida
                     (if (pertencep pessoa prefere-dia-horario) 
                         (incf quant-prefere))
                     (push (car pessoa) item-saida))
@@ -196,7 +203,7 @@
     (let* ((cronograma-horario '()))
         (dolist (disponibilidade disponivel-dia-horario)
             (let* ((pessoa-disponivel (car disponibilidade)) (dia-disponivel (second disponibilidade)) (horario-disponivel (third disponibilidade)))
-                ; Adiciona pessoa se está disponível nesse dia e turno
+                ; Adiciona pessoa se a mesma esta disponivel nesse dia e turno
                 (when (and (eql dia-disponivel dia) (eql horario-disponivel (second turno))) 
                     (push (list pessoa-disponivel dia-disponivel horario-disponivel) cronograma-horario))))
         (montar-combinacoes-horario turno cronograma-horario prefere-dia-horario)))
