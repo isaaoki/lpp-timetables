@@ -105,7 +105,7 @@
 (defun gerar-lista-a-partir-ate (nomeA nomeB infoA infoB)  
     (let* ((lista-saida ())) 
         ; Checa se trata da mesma pessoa e se ambas referem-se ao mesmo tipo de dado
-        (if (and (eql nomeA nomeB) (eql (type-of infoA) (type-of infoB)))
+        (if (and (eql nomeA nomeB) (or (and (typep infoA 'integer) (typep infoB 'integer)) (and (typep infoA 'symbol) (typep infoB 'symbol))))
             (if (pertencep infoA DIAS) 
                 (dolist (dia DIAS) ; Caso seja um dia, percorre pela lista DIAS
                     (if (and (>= (position dia DIAS) (position infoA DIAS)) (<= (position dia DIAS) (position infoB DIAS))) 
@@ -120,6 +120,7 @@
 ; DISPONIVEL-A-PARTIR (tinos 10) -> ((TINOS 10) (TINOS 14))
 (defun gerar-lista-a-partir (nomeA infoA) 
     (let* ((lista-saida ()))
+        ; (if (eq nomeA 'isabela) (format T "Oi ~w" infoA))
         (if (pertencep infoA DIAS) 
             (dolist (dia DIAS) ; Caso seja um dia, percorre pela lista DIAS
                 (if (>= (position dia DIAS) (position infoA DIAS)) (push (list nomeA dia) lista-saida)))
@@ -140,6 +141,7 @@
                             ; Se a funcao retornou uma lista nao vazia, a mesma foi capaz de achar uma relacao ate compativel com relacA
                             (setf lista-saida (append lista lista-saida))
                             (setf sem-relac-ate nil))))
+                
                 ; Caso esteja definida apenas a relacao a_partir
                 (if sem-relac-ate (setf lista-saida (append (gerar-lista-a-partir nomeA infoA) lista-saida)))))
         lista-saida))
@@ -151,13 +153,13 @@
             (dolist (relacB lista)
                 (let* ((nomeA (car relacA)) (nomeB (car relacB)) (infoA (second relacA)) (infoB (second relacB)))
                 ; Checa se relacA e relacB tratam-se da mesma pessoa, se relacA refefere-se a um dia e se relacB a um horario
-                    (if (and (eql nomeA nomeB) (typep infoA (type-of (car DIAS))) (integerp infoB))
+                    (if (and (eql nomeA nomeB) (symbolp infoA) (integerp infoB))
                         (push (list nomeA infoA infoB) lista-saida)))))
         lista-saida))
 
 
 ; Retorna lista com combinacoes validas, retirando combinacoes com pessoas incompativeis
-(defun process-detesta (lista-combinacoes) 
+(defun checa-compatibilidade (lista-combinacoes) 
     (let* ((combinacoes-validas ()))
         (dolist (combinacao lista-combinacoes)
             ; Para cada combinacao, verifica se é compativel e ignora o indice de preferencia 
@@ -186,7 +188,7 @@
                 ; Adciona indice ao inicio de item-saida e adiciona item a lista
                 (push quant-prefere item-saida)  
                 (push item-saida lista-saida)))
-        (process-detesta lista-saida)))
+        (checa-compatibilidade lista-saida)))
 
 ; Gera os possiveis cronograma para um dia e um turno
 ; Retorna lista de combinacoes de pessoas disponiveis e com index prefere em um dia e horario (uma lista)

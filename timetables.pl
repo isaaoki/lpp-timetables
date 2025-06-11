@@ -13,7 +13,7 @@ Autores:
 dias_semana([seg, ter, qua, qui, sex]).
 
 %% horario(-Horarios:int) 
-horarios([8, 10, 14]).
+horarios([11, 13, 18, 20]).
 
 %% turno(+Quantidade:int, +Horario:int)
 % Representa um turno com a quantidade de pessoas necessaria e horario
@@ -41,7 +41,7 @@ disponivel_a_partir(jessica, ter).
 % Define ate que dia/horario a pessoa esta disponivel
 disponivel_ate(guilherme, 20).
 disponivel_ate(lucas, qui).
-disponivel_ate(isabela, 20).
+disponivel_ate(isabela, 18).
 disponivel_ate(jessica, 20).
 disponivel_ate(jessica, qui).
 
