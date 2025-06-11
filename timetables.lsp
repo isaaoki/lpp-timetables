@@ -136,7 +136,7 @@
 
 
 ; Retorna lista com combinacoes validas, retirando combinacoes com pessoas incompativeis
-(defun process-detesta (lista-combinacoes) 
+(defun checa-compatibilidade (lista-combinacoes) 
     (let* ((combinacoes-validas ()))
         (dolist (combinacao lista-combinacoes)
             ; Para cada combinacao, verifica se é compativel e ignora o indice de preferencia 
@@ -165,7 +165,7 @@
                 ; Adciona indice ao inicio de item-saida e adiciona item a lista
                 (push quant-prefere item-saida)  
                 (push item-saida lista-saida)))
-        (process-detesta lista-saida)))
+        (checa-compatibilidade lista-saida)))
 
 ; Gera os possiveis cronograma para um dia e um turno
 ; Retorna lista de combinacoes de pessoas disponiveis e com index prefere em um dia e horario (uma lista)
