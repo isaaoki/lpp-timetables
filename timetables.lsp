@@ -42,7 +42,7 @@
     (lucas qui)
     (isabela 20)
     (jessica 20)
-    (jessica qui)
+    (jessica qua)
 ))
 
 (defconstant PREFERE '(
@@ -105,7 +105,7 @@
 (defun gerar-lista-a-partir-ate (nomeA nomeB infoA infoB)  
     (let* ((lista-saida ())) 
         ; Checa se trata da mesma pessoa e se ambas referem-se ao mesmo tipo de dado
-        (if (and (eql nomeA nomeB) (or (and (typep infoA 'integer) (typep infoB 'integer)) (and (typep infoA 'symbol) (typep infoB 'symbol))))
+        (if (and (eql nomeA nomeB) (or (and (integerp infoA) (integerp infoB)) (and (symbolp infoA) (symbolp infoB))))
             (if (pertencep infoA DIAS) 
                 (dolist (dia DIAS) ; Caso seja um dia, percorre pela lista DIAS
                     (if (and (>= (position dia DIAS) (position infoA DIAS)) (<= (position dia DIAS) (position infoB DIAS))) 

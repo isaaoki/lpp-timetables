@@ -41,9 +41,9 @@ disponivel_a_partir(jessica, ter).
 % Define ate que dia/horario a pessoa esta disponivel
 disponivel_ate(guilherme, 20).
 disponivel_ate(lucas, qui).
-disponivel_ate(isabela, 18).
+disponivel_ate(isabela, 20).
 disponivel_ate(jessica, 20).
-disponivel_ate(jessica, qui).
+disponivel_ate(jessica, qua).
 
 %% disponivel(+Pessoa:atom, +Valor:int|atom) 
 % Define explicitamente o dia/horario que a pessoa esta disponivel
